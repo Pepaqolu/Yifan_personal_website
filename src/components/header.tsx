@@ -3,6 +3,7 @@
 import { motion, useMotionValueEvent, useScroll } from "motion/react";
 import { useState } from "react";
 import { siteContent } from "@/content/site";
+import { AnalyticsLink } from "./analytics-link";
 
 export function Header() {
   const { scrollY } = useScroll();
@@ -26,9 +27,11 @@ export function Header() {
           <ul className="flex items-center gap-4 sm:gap-7">
             {siteContent.navigation.map((item) => (
               <li key={item.href}>
-                <a href={item.href} className="font-mono text-[0.6rem] uppercase tracking-[0.11em] text-charcoal transition-colors duration-500 hover:text-accent sm:text-[0.65rem]">
-                  {item.label}
-                </a>
+                {item.label === "China Desk" ? (
+                  <AnalyticsLink eventName="China Desk clicked" eventLocation="homepage-nav" href={item.href} className="font-mono text-[0.6rem] uppercase tracking-[0.11em] text-charcoal transition-colors duration-500 hover:text-accent sm:text-[0.65rem]">{item.label}</AnalyticsLink>
+                ) : (
+                  <a href={item.href} className="font-mono text-[0.6rem] uppercase tracking-[0.11em] text-charcoal transition-colors duration-500 hover:text-accent sm:text-[0.65rem]">{item.label}</a>
+                )}
               </li>
             ))}
           </ul>

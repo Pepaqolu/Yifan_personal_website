@@ -3,7 +3,7 @@
 import { track } from "@vercel/analytics";
 import { useEffect } from "react";
 
-const trackedSections = ["experience", "advisory", "becoming", "contact"] as const;
+const trackedSections = ["experience", "advisory", "china-desk", "becoming", "contact"] as const;
 
 export function EngagementAnalytics() {
   useEffect(() => {

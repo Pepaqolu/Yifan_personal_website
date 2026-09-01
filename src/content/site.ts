@@ -10,6 +10,7 @@ export const siteContent = {
   navigation: [
     { label: "Between", href: "#between" },
     { label: "Advisory", href: "#advisory" },
+    { label: "China Desk", href: "/desk" },
     { label: "Contact", href: "#contact" },
   ],
   hero: {
@@ -80,6 +81,10 @@ export const siteContent = {
     cta: "Start a conversation",
     subject: "China Market Inquiry",
     secondary: ["Building something interesting elsewhere?", "Say hello anyway."],
+    paths: [
+      { label: "Advisory project", href: "mailto:yifanevanfu@gmail.com?subject=China%20Advisory%20Inquiry", event: "Advisory clicked" },
+      { label: "China Desk", href: "/desk", event: "China Desk clicked" },
+    ],
   },
   footer: { note: "China ↔ World" },
 } as const;

@@ -5,6 +5,7 @@ import { useRef } from "react";
 import { siteContent } from "@/content/site";
 import { Reveal } from "./reveal";
 import { ScrollProgressDebug } from "./scroll-progress-debug";
+import { AnalyticsLink } from "./analytics-link";
 
 export function Services() {
   const bridgeRef = useRef<HTMLDivElement>(null);
@@ -54,10 +55,10 @@ export function Services() {
           ))}
         </div>
         <Reveal className="mt-20 sm:mt-28">
-          <a href="#contact" className="group inline-flex items-center gap-4 text-base font-medium tracking-[-0.025em] sm:text-lg">
-            <span className="border-b border-paper/25 pb-1.5 transition-colors duration-700 group-hover:border-accent">Tell me what you&apos;re exploring</span>
+          <AnalyticsLink eventName="China Desk clicked" eventLocation="homepage-advisory" href="#china-desk" className="group inline-flex items-center gap-4 text-base font-medium tracking-[-0.025em] sm:text-lg">
+            <span className="border-b border-paper/25 pb-1.5 transition-colors duration-700 group-hover:border-accent"><span className="text-paper/45">Need this continuously?</span> Introducing China Desk</span>
             <span aria-hidden="true" className="text-accent transition-transform duration-700 group-hover:translate-x-1">→</span>
-          </a>
+          </AnalyticsLink>
         </Reveal>
       </div>
     </section>
