@@ -13,6 +13,12 @@ export const siteContent = {
     { label: "China Desk", href: "/desk" },
     { label: "Contact", href: "#contact" },
   ],
+  announcement: {
+    title: "China Desk is coming.",
+    description: "Continuous China-side intelligence and execution",
+    mobile: "China Desk is coming",
+    href: "/desk",
+  },
   hero: {
     name: "YIFAN FU",
     lineOne: "Built between worlds.",
