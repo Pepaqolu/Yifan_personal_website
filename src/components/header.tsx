@@ -12,9 +12,9 @@ export function Header() {
 
   return (
     <motion.header
-      className={`fixed inset-x-0 top-0 z-50 border-b transition-[background-color,border-color,backdrop-filter] duration-700 ${
+      className={`fixed inset-x-0 top-0 z-50 border-b transition-[background-color,border-color,backdrop-filter] duration-1000 ${
         scrolled
-          ? "border-ink/[0.07] bg-paper/75 backdrop-blur-xl"
+          ? "border-ink/[0.07] bg-paper/[0.72] backdrop-blur-2xl"
           : "border-transparent bg-transparent"
       }`}
     >
@@ -25,7 +25,7 @@ export function Header() {
         <nav aria-label="Primary navigation">
           <ul className="flex items-center gap-4 sm:gap-7">
             {siteContent.navigation.map((item) => (
-              <li key={item.href} className={item.href === "#experience" ? "hidden sm:block" : ""}>
+              <li key={item.href}>
                 <a href={item.href} className="font-mono text-[0.6rem] uppercase tracking-[0.11em] text-charcoal transition-colors duration-500 hover:text-accent sm:text-[0.65rem]">
                   {item.label}
                 </a>

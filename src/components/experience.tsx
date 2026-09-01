@@ -8,73 +8,60 @@ import { Reveal } from "./reveal";
 export function Experience() {
   const betweenRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
-  const { scrollYProgress } = useScroll({
-    target: betweenRef,
-    offset: ["start start", "end end"],
-  });
-  const leftX = useTransform(scrollYProgress, [0, 0.75], ["-17vw", "-2vw"]);
-  const rightX = useTransform(scrollYProgress, [0, 0.75], ["17vw", "2vw"]);
-  const copyOpacity = useTransform(scrollYProgress, [0.32, 0.66], [0, 1]);
+  const { scrollYProgress } = useScroll({ target: betweenRef, offset: ["start start", "end end"] });
+  const leftX = useTransform(scrollYProgress, [0, 0.72], ["-4vw", "-0.75vw"]);
+  const rightX = useTransform(scrollYProgress, [0, 0.72], ["4vw", "0.75vw"]);
+  const copyOpacity = useTransform(scrollYProgress, [0.38, 0.68], [0, 1]);
 
   return (
     <section id="perspective">
-      <div id="between" ref={betweenRef} className="relative h-[190svh] scroll-mt-16">
-        <div className="sticky top-0 flex h-[100svh] items-center justify-center overflow-hidden bg-paper">
+      <div id="between" ref={betweenRef} className="relative h-[155svh] scroll-mt-16">
+        <div className="sticky top-0 flex h-[100svh] items-center justify-center overflow-hidden bg-paper [contain:paint]">
           <div className="relative flex w-full items-center justify-center" aria-label="之间 — between">
-            <motion.span
-              aria-hidden="true"
-              style={{ x: reduceMotion ? 0 : leftX }}
-              className="select-none text-[clamp(13rem,40vw,40rem)] font-medium leading-[0.65] tracking-[-0.12em]"
-            >
-              {siteContent.between.leftCharacter}
-            </motion.span>
-            <motion.span
-              aria-hidden="true"
-              style={{ x: reduceMotion ? 0 : rightX }}
-              className="select-none text-[clamp(13rem,40vw,40rem)] font-medium leading-[0.65] tracking-[-0.12em]"
-            >
-              {siteContent.between.rightCharacter}
-            </motion.span>
+            <motion.span aria-hidden="true" style={{ x: reduceMotion ? 0 : leftX }} className="select-none text-[clamp(10.5rem,42vw,42rem)] font-medium leading-[0.62] tracking-[-0.13em] sm:text-[clamp(15rem,42vw,42rem)]">{siteContent.between.leftCharacter}</motion.span>
+            <motion.span aria-hidden="true" style={{ x: reduceMotion ? 0 : rightX }} className="select-none text-[clamp(10.5rem,42vw,42rem)] font-medium leading-[0.62] tracking-[-0.13em] sm:text-[clamp(15rem,42vw,42rem)]">{siteContent.between.rightCharacter}</motion.span>
           </div>
-          <motion.div
-            style={{ opacity: reduceMotion ? 1 : copyOpacity }}
-            className="absolute inset-x-0 bottom-[9vh] text-center"
-          >
+          <motion.div style={{ opacity: reduceMotion ? 1 : copyOpacity }} className="absolute inset-x-0 bottom-[10vh] text-center">
             <p className="eyebrow text-accent">{siteContent.between.label}</p>
-            <p className="mt-3 text-[clamp(1.25rem,2.2vw,2.3rem)] font-medium tracking-[-0.045em]">
-              {siteContent.between.statement}
+            <p className="mt-4 text-[clamp(1.4rem,2.8vw,2.8rem)] font-medium tracking-[-0.05em]">
+              <span>Two lenses.</span><span className="text-stone"> One perspective.</span>
             </p>
           </motion.div>
         </div>
       </div>
 
-      <div id="experience" className="page-shell flex min-h-[125svh] scroll-mt-20 flex-col justify-center py-32 sm:py-48">
+      <div id="experience" className="page-shell scroll-mt-20 py-36 sm:py-56">
         <Reveal>
           <p className="eyebrow text-stone">{siteContent.experience.label}</p>
-          <h2 className="display-tight mt-10 whitespace-nowrap text-[12vw] font-semibold sm:text-[clamp(4.2rem,14vw,14.5rem)]">
-            {siteContent.experience.company}
-          </h2>
+          <h2 className="mt-10 text-[clamp(4.2rem,13vw,13rem)] font-semibold leading-[0.8] tracking-[-0.08em]">{siteContent.experience.company}</h2>
+          <p className="mt-8 text-sm tracking-[-0.02em] text-stone sm:text-base">{siteContent.experience.context}</p>
         </Reveal>
 
-        <div className="mt-28 grid gap-20 border-t border-line pt-8 sm:mt-40 md:grid-cols-12 md:gap-6">
-          <Reveal className="md:col-span-5 md:col-start-2">
-            <p className="text-[clamp(6rem,14vw,14rem)] font-medium leading-[0.78] tracking-[-0.08em]">
-              {siteContent.experience.metric}
-            </p>
-            <p className="mt-7 text-xl tracking-[-0.035em] text-charcoal sm:text-2xl">
-              {siteContent.experience.metricLabel}
-            </p>
-          </Reveal>
-          <Reveal delay={0.1} className="md:col-span-4 md:col-start-9 md:self-end">
-            <ul className="divide-y divide-line border-t border-line">
-              {siteContent.experience.sectors.map((sector) => (
-                <li key={sector} className="py-4 text-lg font-medium tracking-[-0.03em] sm:text-xl">
-                  {sector}
-                </li>
-              ))}
-            </ul>
+        <div className="mt-24 grid gap-16 border-t border-line pt-8 md:mt-40 md:grid-cols-12 md:gap-8">
+          <Reveal className="md:col-span-7 md:col-start-2">
+            <p className="max-w-3xl text-[clamp(1.8rem,3.6vw,3.6rem)] font-medium leading-[1.06] tracking-[-0.055em]">{siteContent.experience.summary}</p>
+            <p className="mt-10 max-w-xl text-base leading-[1.6] text-stone sm:text-lg">{siteContent.experience.focus}</p>
           </Reveal>
         </div>
+
+        <div className="mt-36 grid gap-10 border-t border-line pt-8 md:mt-56 md:grid-cols-12 md:gap-8">
+          <Reveal className="md:col-span-5 md:col-start-2">
+            <p className="text-[clamp(7rem,15vw,15rem)] font-medium leading-[0.75] tracking-[-0.085em]">{siteContent.experience.metric}</p>
+            <p className="mt-8 text-[clamp(1.6rem,3vw,3rem)] font-medium tracking-[-0.05em]">{siteContent.experience.metricLabel}</p>
+          </Reveal>
+          <Reveal delay={0.08} className="md:col-span-4 md:col-start-8 md:self-end">
+            <p className="max-w-md text-lg leading-[1.55] tracking-[-0.025em] text-stone">{siteContent.experience.metricSummary}</p>
+          </Reveal>
+        </div>
+      </div>
+
+      <div className="page-shell flex min-h-[110svh] flex-col justify-center py-32 sm:py-48">
+        <Reveal>
+          {siteContent.operator.statement.map((line, index) => (
+            <p key={line} className={`max-w-[15ch] text-[clamp(3.5rem,8.5vw,8.5rem)] font-medium leading-[0.89] tracking-[-0.075em] ${index ? "text-stone" : ""}`}>{line}</p>
+          ))}
+          <p className="mt-16 max-w-xl text-base leading-[1.7] tracking-[-0.02em] text-stone sm:mt-24 sm:text-xl">{siteContent.operator.context}</p>
+        </Reveal>
       </div>
     </section>
   );

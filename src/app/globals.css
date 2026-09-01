@@ -2,11 +2,13 @@
 
 :root {
   --paper: #f5f5f2;
-  --ink: #181817;
-  --charcoal: #3d3d3a;
-  --stone: #898983;
-  --line: #d9d9d3;
-  --accent: #932f24;
+  --ink: #111111;
+  --charcoal: #3b3b38;
+  --stone: #72726d;
+  --line: rgba(0, 0, 0, 0.09);
+  --dark: #090909;
+  --dark-soft: #161616;
+  --accent: #9b4438;
   --selection: #ddd8d0;
   --gutter: clamp(1.25rem, 4vw, 4.5rem);
   --max-width: 110rem;
@@ -19,6 +21,8 @@
   --color-stone: var(--stone);
   --color-line: var(--line);
   --color-accent: var(--accent);
+  --color-dark: var(--dark);
+  --color-dark-soft: var(--dark-soft);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -33,6 +37,7 @@ body {
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 ::selection { background: var(--selection); color: var(--ink); }
 a { color: inherit; text-decoration: none; }
@@ -49,10 +54,12 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 .text-balance { text-wrap: balance; }
 .display-tight { letter-spacing: -0.075em; line-height: 0.83; }
+.section-space { padding-block: clamp(8rem, 16vw, 15rem); }
 
 @media (max-width: 767px) {
   :root { --gutter: 1.2rem; }
   .display-tight { letter-spacing: -0.065em; line-height: 0.87; }
+  .section-space { padding-block: 8rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -4,12 +4,11 @@ export const siteContent = {
   email: "yifanevanfu@gmail.com",
   meta: {
     title: "Yifan Fu — China ↔ World",
-    description: "Yifan Fu works between China and the world, bringing local perspective to cross-border decisions.",
-    siteUrl: "", // Add the production URL after deployment.
+    description: "Yifan Fu works across China, technology, healthcare, and cross-border business, helping international companies navigate the Chinese market.",
+    siteUrl: "https://yifan.world",
   },
   navigation: [
     { label: "Between", href: "#between" },
-    { label: "Experience", href: "#experience" },
     { label: "Advisory", href: "#advisory" },
     { label: "Contact", href: "#contact" },
   ],
@@ -36,12 +35,20 @@ export const siteContent = {
   experience: {
     label: "EXPERIENCE",
     company: "HUMANEOTEC",
+    context: "Medical Technology · Shenzhen, China",
+    summary: "Worked across product commercialization, marketing, market development and international expansion in China's medical technology industry.",
+    focus: "Technology. Healthcare. Commercialization. International markets.",
     metric: "10+",
     metricLabel: "Companies advised",
-    sectors: ["Technology", "Healthcare", "Cross-border business"],
+    metricSummary: "Across market research, China strategy, sourcing, commercialization and cross-border questions.",
+  },
+  operator: {
+    statement: ["I don't study China from the outside.", "I operate inside it."],
+    context: "Products. Factories. Hospitals. Distributors. Partners. Customers.",
   },
   advisory: {
     title: "Working on China?",
+    audience: "I work best with companies that already have something real — a product, an opportunity, or a question — and need a clearer view of China.",
     services: [
       { number: "01", title: "Market validation", description: "Test the opportunity before committing." },
       { number: "02", title: "Market entry", description: "Turn context into a practical path forward." },
@@ -51,9 +58,16 @@ export const siteContent = {
     ],
   },
   becoming: ["Still learning.", "Still building.", "Still becoming."],
+  perspective: {
+    statement: "I'm interested in the places where technology, markets, culture and people collide.",
+    interests: ["AI", "Healthcare", "Technology", "China", "Global Markets", "Entrepreneurship"],
+  },
   contact: {
     title: "Thinking about China?",
+    prompt: "Have a product, market, or opportunity you're exploring?",
+    invitation: "Let's talk.",
     cta: "Start a conversation",
+    subject: "China Market Inquiry",
   },
   footer: { note: "China ↔ World" },
 } as const;

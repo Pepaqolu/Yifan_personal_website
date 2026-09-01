@@ -5,14 +5,11 @@ import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"], display: "swap" });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"], display: "swap" });
-const productionUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
-  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-  : "http://localhost:3000";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(siteContent.meta.siteUrl || productionUrl),
+  metadataBase: new URL(siteContent.meta.siteUrl),
   title: siteContent.meta.title,
   description: siteContent.meta.description,
+  alternates: { canonical: "/" },
   applicationName: siteContent.name,
   authors: [{ name: siteContent.name }],
   creator: siteContent.name,
@@ -22,6 +19,7 @@ export const metadata: Metadata = {
     title: siteContent.meta.title,
     description: siteContent.meta.description,
     siteName: siteContent.name,
+    url: "/",
     images: [{ url: "/og.png", width: 1730, height: 909, alt: siteContent.meta.title }],
   },
   twitter: {
@@ -33,7 +31,7 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export const viewport: Viewport = { themeColor: "#f5f5f2", colorScheme: "light" };
+export const viewport: Viewport = { themeColor: "#f5f5f2", colorScheme: "light dark" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
