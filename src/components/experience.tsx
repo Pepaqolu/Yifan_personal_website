@@ -38,7 +38,7 @@ export function Experience() {
       <div id="experience" className="page-shell scroll-mt-20 py-36 sm:py-56">
         <Reveal>
           <p className="eyebrow text-stone">{siteContent.experience.label}</p>
-          <h2 className="mt-10 text-[clamp(4.2rem,13vw,13rem)] font-semibold leading-[0.8] tracking-[-0.08em]">{siteContent.experience.company}</h2>
+          <h2 className="mt-10 text-[13vw] font-semibold leading-[0.8] tracking-[-0.08em] sm:text-[clamp(4.2rem,13vw,13rem)]">{siteContent.experience.company}</h2>
           <p className="mt-8 text-sm tracking-[-0.02em] text-stone sm:text-base">{siteContent.experience.context}</p>
         </Reveal>
 

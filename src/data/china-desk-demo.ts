@@ -19,9 +19,8 @@ export const chinaDeskDemo = {
   suggestedQueries: [
     "Who are our strongest Chinese competitors?",
     "Find distributors similar to this company.",
-    "What changed in this market this month?",
-    "How is our pricing positioned locally?",
-    "What objections are Chinese buyers likely to have?",
+    "What changed in our market this month?",
+    "How is our pricing positioned in China?",
   ],
   marketUpdates: [
     { date: "12 SEP", category: "Competitor", headline: "A domestic competitor introduced a new mid-market product tier", explanation: "The launch may change pricing expectations in the segment. Positioning and channel response require monitoring.", sourceType: "Company announcement · Chinese language" },

@@ -33,26 +33,8 @@ export default function DeskPage() {
               </Reveal>
               <Reveal delay={0.08} className="flex flex-col items-start gap-5 md:col-span-3 md:col-start-10 md:self-end">
                 <AnalyticsLink eventName="Private access clicked" eventLocation="desk-hero" href={desk.access.href} className="group inline-flex items-center gap-3 text-sm font-medium sm:text-base"><span className="border-b border-ink/25 pb-1">Request private access</span><span className="text-accent transition-transform group-hover:translate-x-1">→</span></AnalyticsLink>
-                <AnalyticsLink eventName="Dashboard demo viewed" eventLocation="desk-hero" href="/desk/demo" className="text-sm text-stone hover:text-accent">See the dashboard ↓</AnalyticsLink>
+                <AnalyticsLink eventName="Dashboard demo viewed" eventLocation="desk-hero" href="/desk/demo" className="text-sm text-stone hover:text-accent">Explore the dashboard ↓</AnalyticsLink>
               </Reveal>
-            </div>
-          </div>
-        </section>
-
-        <section id="how-it-works" className="scroll-mt-24 bg-dark text-paper">
-          <div className="page-shell py-36 sm:py-56">
-            <p className="eyebrow text-paper/38">HOW IT WORKS</p>
-            <div className="mt-16 border-t border-paper/15 sm:mt-24">
-              {desk.howItWorks.map((step, index) => (
-                <Reveal key={step.number} delay={index * 0.05} className="grid gap-8 border-b border-paper/15 py-12 md:grid-cols-12 md:gap-8 md:py-16">
-                  <span className="font-mono text-[0.65rem] tracking-[0.12em] text-paper/32 md:col-span-1">{step.number}</span>
-                  <h2 className="text-[clamp(3rem,7vw,7rem)] font-medium leading-[0.85] tracking-[-0.07em] md:col-span-5">{step.title}</h2>
-                  <div className="md:col-span-4 md:col-start-9 md:self-end">
-                    <p className="text-sm text-paper/38">{step.intro}</p>
-                    <p className="mt-5 text-lg leading-[1.5] tracking-[-0.03em] text-paper/72">{step.items.map((item) => <span key={item} className="block">{item}</span>)}</p>
-                  </div>
-                </Reveal>
-              ))}
             </div>
           </div>
         </section>
@@ -86,10 +68,28 @@ export default function DeskPage() {
         </section>
 
         <section className="bg-dark-soft text-paper">
-          <div className="page-shell py-36 sm:py-56">
+          <div className="page-shell py-40 sm:py-60">
             <Reveal>
-              <p className="max-w-[14ch] text-[clamp(3.5rem,8vw,8rem)] font-medium leading-[0.9] tracking-[-0.072em]">A workspace for the China questions that do not fit inside a single report.</p>
-              <AnalyticsLink eventName="Dashboard demo viewed" eventLocation="desk-body" href="/desk/demo" className="group mt-20 inline-flex items-center gap-4 text-base font-medium sm:mt-28 sm:text-lg"><span className="border-b border-paper/25 pb-1.5 group-hover:border-accent">Explore the dashboard demo</span><span className="text-accent transition-transform group-hover:translate-x-1">→</span></AnalyticsLink>
+              {desk.differentiator.lines.map((line, index) => <p key={line} className={`max-w-[14ch] text-[clamp(3.4rem,8vw,8rem)] font-medium leading-[0.9] tracking-[-0.072em] ${index ? "text-paper/45" : ""}`}>{line}</p>)}
+            </Reveal>
+            <div className="mt-28 grid gap-16 border-t border-paper/15 pt-8 md:mt-44 md:grid-cols-12 md:gap-8">
+              <Reveal className="md:col-span-5 md:col-start-2">
+                {desk.differentiator.supporting.map((line) => <p key={line} className="text-xl leading-[1.35] tracking-[-0.035em] text-paper/55 sm:text-2xl">{line}</p>)}
+              </Reveal>
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-paper">
+          <div className="page-shell py-40 sm:py-60">
+            <Reveal><h2 className="max-w-[14ch] text-[clamp(3.5rem,8vw,8rem)] font-medium leading-[0.9] tracking-[-0.072em]">{desk.compounding.headline}</h2></Reveal>
+            <div className="mt-28 grid gap-16 border-t border-line pt-8 md:mt-44 md:grid-cols-12 md:gap-8">
+              <Reveal className="md:col-span-4 md:col-start-2"><p className="text-lg leading-[1.55] tracking-[-0.025em] text-stone">{desk.compounding.intro}</p></Reveal>
+              <Reveal delay={0.08} className="md:col-span-5 md:col-start-7"><p className="text-[clamp(1.6rem,3vw,3rem)] font-medium leading-[1.15] tracking-[-0.05em]">{desk.compounding.context.map((item) => <span key={item} className="block">{item}</span>)}</p></Reveal>
+            </div>
+            <Reveal className="mt-32 sm:mt-48">
+              {desk.compounding.close.map((line, index) => <p key={line} className={`text-[clamp(2.6rem,5.5vw,5.5rem)] font-medium leading-[0.95] tracking-[-0.065em] ${index ? "text-accent" : "text-stone"}`}>{line}</p>)}
+              <AnalyticsLink eventName="Dashboard demo viewed" eventLocation="desk-body" href="/desk/demo" className="group mt-20 inline-flex items-center gap-4 text-base font-medium sm:mt-28 sm:text-lg"><span className="border-b border-ink/25 pb-1.5 group-hover:border-accent">Explore the dashboard demo</span><span className="text-accent transition-transform group-hover:translate-x-1">→</span></AnalyticsLink>
             </Reveal>
           </div>
         </section>

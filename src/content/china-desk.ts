@@ -7,16 +7,16 @@ export const chinaDeskContent = {
   honestDefinition: "A private China intelligence and execution desk, powered by technology and backed by someone operating on the ground.",
   problem: {
     headline: "China doesn't stop changing after the market report is finished.",
-    changes: ["Competitors move.", "Prices change.", "Partners appear.", "Regulations evolve.", "Customers respond.", "Assumptions break."],
+    changes: ["Competitors move.", "Prices change.", "Partners appear.", "Customers respond.", "Regulations evolve.", "Assumptions break."],
     answer: "China Desk stays with you.",
   },
   capabilities: [
-    { number: "01", title: "MARKET PULSE", description: "What changed in your Chinese market since your last update." },
-    { number: "02", title: "COMPETITOR RADAR", description: "Track relevant Chinese competitors, launches, positioning, pricing and activity." },
-    { number: "03", title: "PARTNER RADAR", description: "Continuously identify distributors, customers, suppliers and potential commercial partners." },
-    { number: "04", title: "ASK CHINA", description: "Research questions using Chinese-language sources, accumulated client context and local knowledge." },
-    { number: "05", title: "REQUESTS", description: "Ask for deeper research, supplier searches, company checks, partner discovery or other China-side work." },
-    { number: "06", title: "EXECUTION", description: "When research needs to become action, Yifan can assist with real outreach, communication and coordination on the ground." },
+    { number: "01", title: "MARKET PULSE", description: "Understand what changed in your Chinese market." },
+    { number: "02", title: "COMPETITOR RADAR", description: "Monitor competitors, positioning, products, pricing and relevant activity." },
+    { number: "03", title: "PARTNER RADAR", description: "Continuously identify potential distributors, customers, suppliers and partners." },
+    { number: "04", title: "ASK CHINA", description: "Ask research questions using Chinese-language information and accumulated company context." },
+    { number: "05", title: "REQUESTS", description: "Request deeper research, company checks, sourcing work or partner discovery." },
+    { number: "06", title: "EXECUTION", description: "When research needs to become action, Yifan can assist with outreach, communication and coordination in China." },
   ],
   differentiator: {
     lines: ["AI can tell you about China.", "China Desk helps you operate in it."],
@@ -26,7 +26,7 @@ export const chinaDeskContent = {
   compounding: {
     headline: "THE LONGER IT RUNS, THE BETTER IT KNOWS YOUR MARKET.",
     intro: "Over time, your China Desk can accumulate context around:",
-    context: ["Your products.", "Your customers.", "Your competitors.", "Your distributors.", "Your suppliers.", "Your previous research.", "Your conversations.", "Your decisions."],
+    context: ["Your company", "Your products", "Your customers", "Your competitors", "Your distributors", "Your suppliers", "Previous research", "Previous conversations", "Important decisions"],
     close: ["Instead of starting from zero every time,", "your China intelligence compounds."],
   },
   access: {

@@ -6,7 +6,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { chinaDeskDemo as demo, type Competitor, type PartnerStatus } from "@/data/china-desk-demo";
 import { AnalyticsLink } from "./analytics-link";
 
-const navItems = ["Overview", "Market Pulse", "Competitors", "Partners", "Research", "Requests", "Knowledge", "Settings"] as const;
+const navItems = ["Overview", "Market Pulse", "Competitors", "Partners", "Research", "Requests", "Knowledge"] as const;
 type View = (typeof navItems)[number];
 
 function DemoBadge() {
@@ -41,7 +41,7 @@ function AskChina() {
       {submitted ? (
         <div className="mt-8 max-w-xl border-l border-accent pl-5">
           <p className="font-medium">China Desk AI is currently in private development.</p>
-          <AnalyticsLink eventName="Email clicked" eventLocation="desk-demo-question" href={`mailto:yifanevanfu@gmail.com?subject=China%20Desk%20Question&body=${encodeURIComponent(question)}`} className="mt-3 inline-block text-sm text-stone hover:text-accent">Send this question to Yifan instead →</AnalyticsLink>
+          <AnalyticsLink eventName="Email clicked" eventLocation="desk-demo-question" href={`mailto:yifanevanfu@gmail.com?subject=China%20Desk%20Question&body=${encodeURIComponent(question)}`} className="mt-3 inline-block text-sm text-stone hover:text-accent">Send this question to Yifan →</AnalyticsLink>
         </div>
       ) : (
         <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3">
@@ -122,16 +122,12 @@ function Knowledge() {
   return <><SectionHeading label="KNOWLEDGE" title="Context that compounds." description="A visual representation of the institutional knowledge a long-running China Desk can accumulate." /><div className="grid border-t border-line md:grid-cols-2">{demo.knowledge.map((area) => <section key={area.title} className="border-b border-line py-8 md:px-8 md:odd:border-r md:odd:pl-0"><p className="eyebrow text-stone">{area.title}</p><p className="mt-6 text-lg leading-[1.55] tracking-[-0.03em]">{area.items.map((item) => <span key={item} className="block">{item}</span>)}</p></section>)}</div></>;
 }
 
-function Settings() {
-  return <><SectionHeading label="SETTINGS" title="Desk preferences." description="This demo does not save settings. Account, notification and monitoring controls will be added only when the underlying product exists." /><div className="border-t border-line py-8 text-sm leading-[1.7] text-stone">No configurable settings in demo mode.</div></>;
-}
-
 function CompetitorPanel({ competitor, onClose }: { competitor: Competitor; onClose: () => void }) {
   return <div className="fixed inset-0 z-[80] bg-ink/20" onClick={onClose}><aside aria-label={`${competitor.company} details`} className="ml-auto h-full w-full max-w-xl overflow-y-auto bg-paper p-6 shadow-2xl sm:p-10" onClick={(event) => event.stopPropagation()}><div className="flex justify-between"><DemoBadge /><button onClick={onClose} className="text-sm text-stone hover:text-ink">Close</button></div><h2 className="mt-12 text-4xl font-medium tracking-[-0.06em] sm:text-5xl">{competitor.company}</h2><p className="mt-4 text-stone">{competitor.overview}</p>{[["Products",competitor.products],["Positioning",[competitor.positioning]],["Recent activity",[competitor.latestActivity]],["Notes",[competitor.notes]],["Sources",competitor.sources]].map(([label,items]) => <section key={label as string} className="mt-10 border-t border-line pt-5"><p className="eyebrow text-stone">{label as string}</p><p className="mt-4 leading-[1.6]">{(items as readonly string[]).map((item)=><span key={item} className="block">{item}</span>)}</p></section>)}</aside></div>;
 }
 
 function RequestModal({ type, onClose }: { type: string; onClose: () => void }) {
-  return <div className="fixed inset-0 z-[80] flex items-end justify-center bg-ink/25 p-4 sm:items-center" onClick={onClose}><section role="dialog" aria-modal="true" aria-labelledby="request-title" className="w-full max-w-lg bg-paper p-7 shadow-2xl sm:p-10" onClick={(event)=>event.stopPropagation()}><div className="flex justify-between"><DemoBadge /><button onClick={onClose} className="text-sm text-stone">Close</button></div><h2 id="request-title" className="mt-10 text-4xl font-medium tracking-[-0.06em]">{type}</h2><p className="mt-5 leading-[1.65] text-stone">Backend requests are not enabled in this demo. Send the request directly to Yifan instead.</p><AnalyticsLink eventName="Email clicked" eventLocation="desk-demo-request" href={`mailto:yifanevanfu@gmail.com?subject=${encodeURIComponent(`China Desk Request: ${type}`)}`} className="mt-10 inline-block border-b border-ink/25 pb-1 text-sm font-medium hover:border-accent">Email request to Yifan →</AnalyticsLink></section></div>;
+  return <div className="fixed inset-0 z-[80] flex items-end justify-center bg-ink/25 p-4 sm:items-center" onClick={onClose}><section role="dialog" aria-modal="true" aria-labelledby="request-title" className="w-full max-w-lg bg-paper p-7 shadow-2xl sm:p-10" onClick={(event)=>event.stopPropagation()}><div className="flex justify-between"><DemoBadge /><button onClick={onClose} className="text-sm text-stone">Close</button></div><h2 id="request-title" className="mt-10 text-4xl font-medium tracking-[-0.06em]">{type}</h2><p className="mt-5 leading-[1.65] text-stone">Backend requests are not enabled in this demo. Send the request directly to Yifan instead.</p><AnalyticsLink eventName="Email clicked" eventLocation="desk-demo-request" href={`mailto:yifanevanfu@gmail.com?subject=${encodeURIComponent(`China Desk Request: ${type}`)}`} className="mt-10 inline-block border-b border-ink/25 pb-1 text-sm font-medium hover:border-accent">Email Yifan →</AnalyticsLink></section></div>;
 }
 
 export function DeskDemo() {
@@ -141,7 +137,7 @@ export function DeskDemo() {
 
   useEffect(() => { track("Dashboard demo viewed", { location: "desk-demo" }); }, []);
 
-  const content = view === "Overview" ? <Overview /> : view === "Market Pulse" ? <MarketPulse /> : view === "Competitors" ? <Competitors onSelect={setCompetitor} /> : view === "Partners" ? <Partners /> : view === "Research" ? <Research /> : view === "Requests" ? <Requests onRequest={setRequestType} /> : view === "Knowledge" ? <Knowledge /> : <Settings />;
+  const content = view === "Overview" ? <Overview /> : view === "Market Pulse" ? <MarketPulse /> : view === "Competitors" ? <Competitors onSelect={setCompetitor} /> : view === "Partners" ? <Partners /> : view === "Research" ? <Research /> : view === "Requests" ? <Requests onRequest={setRequestType} /> : <Knowledge />;
 
   return (
     <div className="min-h-screen bg-paper text-ink">
