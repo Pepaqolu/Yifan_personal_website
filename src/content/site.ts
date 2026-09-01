@@ -30,22 +30,33 @@ export const siteContent = {
     joined: "CHINA ↔ WORLD",
     chinese: "连接，不只是翻译。",
     translation: "Connection is more than translation.",
-    message: "I help international companies understand the Chinese market, test assumptions, and move with greater context.",
+    message: "I help international companies understand China, test assumptions, and turn market context into practical decisions.",
   },
   experience: {
     label: "EXPERIENCE",
     company: "HUMANEOTEC",
     context: "Medical Technology · Shenzhen, China",
-    summary: "Worked across product commercialization, marketing, market development and international expansion in China's medical technology industry.",
-    focus: "Technology. Healthcare. Commercialization. International markets.",
+    summary: "Worked across product commercialization, market development, international expansion, and partnerships inside China's medical technology industry.",
+    sectors: ["Technology", "Healthcare", "Cross-border business"],
     metric: "10+",
     metricLabel: "Companies advised",
-    metricSummary: "Across market research, China strategy, sourcing, commercialization and cross-border questions.",
+    metricSummary: "Across China market research, sourcing, commercialization, partner development, and cross-border strategy.",
   },
   operator: {
     statement: ["I don't study China from the outside.", "I operate inside it."],
     context: "Products. Factories. Hospitals. Distributors. Partners. Customers.",
   },
+  selectedWork: [
+    {
+      clientType: "", // Example: "International healthcare company / Market entry"
+      title: "",
+      problem: "",
+      contribution: "",
+      outcome: "",
+    },
+    { clientType: "", title: "", problem: "", contribution: "", outcome: "" },
+    { clientType: "", title: "", problem: "", contribution: "", outcome: "" },
+  ],
   advisory: {
     title: "Working on China?",
     audience: "I work best with companies that already have something real — a product, an opportunity, or a question — and need a clearer view of China.",
@@ -68,6 +79,7 @@ export const siteContent = {
     invitation: "Let's talk.",
     cta: "Start a conversation",
     subject: "China Market Inquiry",
+    secondary: ["Building something interesting elsewhere?", "Say hello anyway."],
   },
   footer: { note: "China ↔ World" },
 } as const;

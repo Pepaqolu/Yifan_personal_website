@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { siteContent } from "@/content/site";
+import { Analytics } from "@vercel/analytics/next";
+import { EngagementAnalytics } from "@/components/engagement-analytics";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"], display: "swap" });
@@ -20,7 +22,7 @@ export const metadata: Metadata = {
     description: siteContent.meta.description,
     siteName: siteContent.name,
     url: "/",
-    images: [{ url: "/og.png", width: 1730, height: 909, alt: siteContent.meta.title }],
+    images: [{ url: "/og.png", width: 1536, height: 1024, alt: "Yifan Fu — Built between worlds. China ↔ World" }],
   },
   twitter: {
     card: "summary_large_image",
@@ -36,7 +38,11 @@ export const viewport: Viewport = { themeColor: "#f5f5f2", colorScheme: "light d
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <EngagementAnalytics />
+        <Analytics />
+      </body>
     </html>
   );
 }

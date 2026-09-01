@@ -45,7 +45,11 @@ export function Experience() {
         <div className="mt-24 grid gap-16 border-t border-line pt-8 md:mt-40 md:grid-cols-12 md:gap-8">
           <Reveal className="md:col-span-7 md:col-start-2">
             <p className="max-w-3xl text-[clamp(1.8rem,3.6vw,3.6rem)] font-medium leading-[1.06] tracking-[-0.055em]">{siteContent.experience.summary}</p>
-            <p className="mt-10 max-w-xl text-base leading-[1.6] text-stone sm:text-lg">{siteContent.experience.focus}</p>
+            <ul className="mt-12 border-t border-line sm:mt-16">
+              {siteContent.experience.sectors.map((sector) => (
+                <li key={sector} className="border-b border-line py-4 text-base font-medium tracking-[-0.025em] sm:text-lg">{sector}</li>
+              ))}
+            </ul>
           </Reveal>
         </div>
 

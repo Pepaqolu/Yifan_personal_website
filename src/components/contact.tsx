@@ -19,6 +19,9 @@ export function Contact() {
             <span className="border-b border-paper/25 pb-1.5 transition-colors duration-700 group-hover:border-accent">{contact.cta}</span>
             <span aria-hidden="true" className="text-accent transition-transform duration-700 group-hover:translate-x-1">→</span>
           </a>
+          <p className="mt-16 max-w-sm text-sm leading-[1.6] tracking-[-0.015em] text-paper/35 sm:mt-20 sm:text-base">
+            {contact.secondary.map((line) => <span key={line} className="block">{line}</span>)}
+          </p>
         </Reveal>
       </div>
     </section>
