@@ -4,29 +4,34 @@ import { motion, useReducedMotion, useScroll, useTransform } from "motion/react"
 import { useRef } from "react";
 import { siteContent } from "@/content/site";
 import { Reveal } from "./reveal";
+import { ScrollProgressDebug } from "./scroll-progress-debug";
 
 export function Experience() {
   const betweenRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: betweenRef, offset: ["start start", "end end"] });
-  const leftX = useTransform(scrollYProgress, [0, 0.72], ["-4vw", "-0.75vw"]);
-  const rightX = useTransform(scrollYProgress, [0, 0.72], ["4vw", "0.75vw"]);
-  const copyOpacity = useTransform(scrollYProgress, [0.38, 0.68], [0, 1]);
+  const leftX = useTransform(scrollYProgress, [0, 0.15, 0.35, 0.9, 1], ["-4vw", "-4vw", "-0.75vw", "-0.75vw", "-0.35vw"]);
+  const rightX = useTransform(scrollYProgress, [0, 0.15, 0.35, 0.9, 1], ["4vw", "4vw", "0.75vw", "0.75vw", "0.35vw"]);
+  const charactersOpacity = useTransform(scrollYProgress, [0, 0.92, 1], [1, 1, 0.82]);
+  const labelOpacity = useTransform(scrollYProgress, [0, 0.55, 0.63, 0.95, 1], [0, 0, 1, 1, 0.75]);
+  const statementOpacity = useTransform(scrollYProgress, [0, 0.7, 0.78, 0.96, 1], [0, 0, 1, 1, 0.82]);
+  const copyY = useTransform(scrollYProgress, [0.55, 0.7, 0.78], [14, 14, 0]);
 
   return (
     <section id="perspective">
-      <div id="between" ref={betweenRef} className="relative h-[155svh] scroll-mt-16">
+      <div id="between" ref={betweenRef} className="relative h-[185svh] scroll-mt-16 sm:h-[205svh]">
         <div className="sticky top-0 flex h-[100svh] items-center justify-center overflow-hidden bg-paper [contain:paint]">
-          <div className="relative flex w-full items-center justify-center" aria-label="之间 — between">
+          <motion.div style={{ opacity: reduceMotion ? 1 : charactersOpacity }} className="relative flex w-full items-center justify-center" aria-label="之间 — between">
             <motion.span aria-hidden="true" style={{ x: reduceMotion ? 0 : leftX }} className="select-none text-[clamp(10.5rem,42vw,42rem)] font-medium leading-[0.62] tracking-[-0.13em] sm:text-[clamp(15rem,42vw,42rem)]">{siteContent.between.leftCharacter}</motion.span>
             <motion.span aria-hidden="true" style={{ x: reduceMotion ? 0 : rightX }} className="select-none text-[clamp(10.5rem,42vw,42rem)] font-medium leading-[0.62] tracking-[-0.13em] sm:text-[clamp(15rem,42vw,42rem)]">{siteContent.between.rightCharacter}</motion.span>
-          </div>
-          <motion.div style={{ opacity: reduceMotion ? 1 : copyOpacity }} className="absolute inset-x-0 bottom-[10vh] text-center">
-            <p className="eyebrow text-accent">{siteContent.between.label}</p>
-            <p className="mt-4 text-[clamp(1.4rem,2.8vw,2.8rem)] font-medium tracking-[-0.05em]">
-              <span>Two lenses.</span><span className="text-stone"> One perspective.</span>
-            </p>
           </motion.div>
+          <motion.div style={{ y: reduceMotion ? 0 : copyY }} className="absolute inset-x-0 bottom-[10vh] text-center">
+            <motion.p style={{ opacity: reduceMotion ? 1 : labelOpacity }} className="eyebrow text-accent">{siteContent.between.label}</motion.p>
+            <motion.p style={{ opacity: reduceMotion ? 1 : statementOpacity }} className="mt-4 text-[clamp(1.4rem,2.8vw,2.8rem)] font-medium tracking-[-0.05em]">
+              <span>Two lenses.</span><span className="text-stone"> One perspective.</span>
+            </motion.p>
+          </motion.div>
+          <ScrollProgressDebug label="BETWEEN" progress={scrollYProgress} />
         </div>
       </div>
 

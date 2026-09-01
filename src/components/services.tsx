@@ -4,34 +4,38 @@ import { motion, useReducedMotion, useScroll, useTransform } from "motion/react"
 import { useRef } from "react";
 import { siteContent } from "@/content/site";
 import { Reveal } from "./reveal";
+import { ScrollProgressDebug } from "./scroll-progress-debug";
 
 export function Services() {
   const bridgeRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: bridgeRef, offset: ["start start", "end end"] });
-  const chinaX = useTransform(scrollYProgress, [0.04, 0.38], ["0vw", "18vw"]);
-  const worldX = useTransform(scrollYProgress, [0.04, 0.38], ["0vw", "-18vw"]);
-  const splitOpacity = useTransform(scrollYProgress, [0.32, 0.42], [1, 0]);
-  const joinedOpacity = useTransform(scrollYProgress, [0.4, 0.52, 0.63], [0, 1, 0.18]);
-  const languageOpacity = useTransform(scrollYProgress, [0.55, 0.68], [0, 1]);
-  const languageY = useTransform(scrollYProgress, [0.55, 0.7], [28, 0]);
-  const messageOpacity = useTransform(scrollYProgress, [0.72, 0.86], [0, 1]);
-  const messageY = useTransform(scrollYProgress, [0.72, 0.88], [28, 0]);
+  const chinaX = useTransform(scrollYProgress, [0, 0.15, 0.35, 1], ["0vw", "0vw", "4vw", "4vw"]);
+  const worldX = useTransform(scrollYProgress, [0, 0.15, 0.35, 1], ["0vw", "0vw", "-4vw", "-4vw"]);
+  const arrowOpacity = useTransform(scrollYProgress, [0, 0.48, 0.58, 1], [0, 0, 1, 1]);
+  const arrowScale = useTransform(scrollYProgress, [0.48, 0.58], [0.92, 1]);
+  const chineseOpacity = useTransform(scrollYProgress, [0, 0.7, 0.78, 1], [0, 0, 1, 1]);
+  const translationOpacity = useTransform(scrollYProgress, [0, 0.78, 0.86, 1], [0, 0, 1, 1]);
+  const languageY = useTransform(scrollYProgress, [0.7, 0.86], [20, 0]);
+  const messageOpacity = useTransform(scrollYProgress, [0, 0.86, 0.92, 0.98, 1], [0, 0, 1, 1, 0.9]);
+  const messageY = useTransform(scrollYProgress, [0.86, 0.92], [20, 0]);
 
   return (
     <section id="advisory" className="bg-dark text-paper">
-      <div ref={bridgeRef} className="relative h-[240svh] scroll-mt-16">
+      <div ref={bridgeRef} className="relative h-[250svh] scroll-mt-16 sm:h-[285svh]">
         <div className="sticky top-0 h-[100svh] overflow-hidden">
-          <motion.div style={{ opacity: reduceMotion ? 0 : splitOpacity }} className="absolute inset-0 flex items-center justify-between px-[5vw]" aria-hidden="true">
+          <div className="absolute inset-0 flex items-center justify-between px-[5vw]" aria-hidden="true">
             <motion.span style={{ x: reduceMotion ? 0 : chinaX }} className="text-[clamp(3rem,12vw,12rem)] font-semibold tracking-[-0.075em]">{siteContent.bridge.china}</motion.span>
             <motion.span style={{ x: reduceMotion ? 0 : worldX }} className="text-[clamp(3rem,12vw,12rem)] font-semibold tracking-[-0.075em]">{siteContent.bridge.world}</motion.span>
-          </motion.div>
-          <motion.p style={{ opacity: reduceMotion ? 1 : joinedOpacity }} className="absolute inset-x-0 top-[40%] whitespace-nowrap text-center text-[clamp(3rem,11vw,11rem)] font-semibold leading-none tracking-[-0.075em]">{siteContent.bridge.joined}</motion.p>
-          <motion.div style={{ opacity: reduceMotion ? 1 : languageOpacity, y: reduceMotion ? 0 : languageY }} className="absolute inset-x-0 top-[60%] px-5 text-center">
-            <p className="text-[clamp(2rem,5vw,5rem)] font-medium tracking-[-0.055em]">{siteContent.bridge.chinese}</p>
-            <p className="mt-3 text-base tracking-[-0.025em] text-paper/50 sm:mt-5 sm:text-xl">{siteContent.bridge.translation}</p>
+          </div>
+          <motion.span style={{ opacity: reduceMotion ? 1 : arrowOpacity, scale: reduceMotion ? 1 : arrowScale }} aria-hidden="true" className="absolute inset-x-0 top-1/2 -translate-y-1/2 text-center text-[clamp(2.5rem,6vw,6rem)] font-medium tracking-[-0.06em]">↔</motion.span>
+          <p className="sr-only">{siteContent.bridge.joined}</p>
+          <motion.div style={{ y: reduceMotion ? 0 : languageY }} className="absolute inset-x-0 top-[64%] px-5 text-center">
+            <motion.p style={{ opacity: reduceMotion ? 1 : chineseOpacity }} className="text-[clamp(2rem,5vw,5rem)] font-medium tracking-[-0.055em]">{siteContent.bridge.chinese}</motion.p>
+            <motion.p style={{ opacity: reduceMotion ? 1 : translationOpacity }} className="mt-3 text-base tracking-[-0.025em] text-paper/50 sm:mt-5 sm:text-xl">{siteContent.bridge.translation}</motion.p>
           </motion.div>
           <motion.p style={{ opacity: reduceMotion ? 1 : messageOpacity, y: reduceMotion ? 0 : messageY }} className="absolute inset-x-0 bottom-[8vh] mx-auto max-w-2xl px-6 text-center text-lg leading-[1.55] tracking-[-0.03em] text-paper/68 sm:text-2xl">{siteContent.bridge.message}</motion.p>
+          <ScrollProgressDebug label="CHINA" progress={scrollYProgress} />
         </div>
       </div>
 
