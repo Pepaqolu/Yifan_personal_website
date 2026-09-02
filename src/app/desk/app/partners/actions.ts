@@ -46,9 +46,10 @@ export async function requestLocalVerification(form: FormData) {
   const context = await requireWorkspace();
   if (!context.organization) throw new Error("A client workspace is required.");
   const partnerId = value(form, "id", 100);
+  const productId = value(form, "product_id", 100);
   const company = value(form, "company", 240);
   const supabase = await createClient();
-  const { data, error } = await supabase.from("requests").insert({ organization_id: context.organization.id, title: `Local verification: ${company}`, description: `Verify this Meridian opportunity before further commercial action.\n\nOpportunity ID: ${partnerId}\n\nRequested checks: company existence, registration, address, product portfolio, represented brands, contact information and Chinese-language reputation.`, request_type: "Research a company", priority: "MEDIUM", status: "SUBMITTED", created_by: context.user.id }).select("id").single();
+  const { data, error } = await supabase.from("requests").insert({ organization_id: context.organization.id, opportunity_id:partnerId, product_id:productId||null, title: `Local verification: ${company}`, description: `Verify this Meridian opportunity before further commercial action.\n\nOpportunity ID: ${partnerId}\n\nRequested checks: business registration, physical operation, relevant product portfolio, imported medical-device experience, decision-maker information and current competing brands.`, request_type: "Research a company", priority: "MEDIUM", status: "SUBMITTED", created_by: context.user.id }).select("id").single();
   if (error || !data) throw new Error(error?.message || "Verification request could not be created.");
   const admin = createAdminClient();
   const { error: verificationError } = await admin.from("partners").update({ verification_status:"REQUESTED" }).eq("id",partnerId).eq("organization_id",context.organization.id);

@@ -22,6 +22,8 @@ function clean(parts: unknown[]) {
     .slice(0, 2800);
 }
 
+function humanAssessmentTitle(value:string){return value.replaceAll("_"," ").toLowerCase().replace(/^./,(letter)=>letter.toUpperCase());}
+
 function relevance(questionTokens: string[], title: string, content: string, date?: string) {
   const haystack = `${title} ${content}`.toLowerCase();
   const lexical = questionTokens.reduce((score, token) => score + (haystack.includes(token) ? 5 : 0), 0);
@@ -56,7 +58,7 @@ function evidence(
 export async function retrieveOrganizationEvidence(organizationId: string, question: string) {
   const supabase = await createClient();
   const questionTokens = tokens(question);
-  const [organization, knowledge, research, market, competitors, partners, requests, activity] = await Promise.all([
+  const [organization, knowledge, research, market, competitors, partners, requests, activity, products, productEvidence, regulatoryMatches, fitAssessments] = await Promise.all([
     supabase.from("organizations").select("id,name,slug").eq("id", organizationId).single(),
     supabase.from("knowledge_items").select("id,title,category,content,tags,source,updated_at").eq("organization_id", organizationId).order("updated_at", { ascending: false }).limit(40),
     supabase.from("research_reports").select("id,title,category,summary,full_content,sources,updated_at").eq("organization_id", organizationId).eq("status", "COMPLETED").order("updated_at", { ascending: false }).limit(20),
@@ -65,8 +67,14 @@ export async function retrieveOrganizationEvidence(organizationId: string, quest
     supabase.from("partners").select("id,company_name,chinese_name,partner_type,location,english_ability,interest_level,status,last_contact,notes,source,updated_at").eq("organization_id", organizationId).order("updated_at", { ascending: false }).limit(40),
     supabase.from("requests").select("id,title,description,request_type,status,updates,updated_at").eq("organization_id", organizationId).order("updated_at", { ascending: false }).limit(20),
     supabase.from("activity").select("id,action,entity_type,metadata,created_at").eq("organization_id", organizationId).order("created_at", { ascending: false }).limit(20),
+    supabase.from("product_profiles").select("id,product_name,product_description,intended_use,clinical_use,target_customer,target_department,business_goal,keywords_en,keywords_zh,formal_terms_zh,procurement_terms_zh,distributor_terms_zh,regulatory_terms_zh,terminology_status,updated_at").eq("organization_id",organizationId).order("updated_at",{ascending:false}).limit(10),
+    supabase.from("evidence").select("id,source_title,source_url,source_type,extracted_fact,fact_type,confidence,verification_status,regulatory_relevance,commercial_relevance,retrieved_at").eq("organization_id",organizationId).order("retrieved_at",{ascending:false}).limit(40),
+    supabase.from("regulatory_matches").select("id,authority,document_name,document_number,status,applicability,applicability_reason,confidence,requirements_summary,questions_to_validate,source_url,last_checked_at").eq("organization_id",organizationId).order("last_checked_at",{ascending:false}).limit(20),
+    supabase.from("opportunity_fit_assessments").select("id,overall_assessment,why_it_matters,concerns,unknowns,recommended_next_action,confidence,updated_at").eq("organization_id",organizationId).order("updated_at",{ascending:false}).limit(30),
   ]);
 
+  // The base workspace must be available. Intelligence tables are additive so
+  // Ask Meridian remains usable during the deployment window before migration 004.
   const errors = [organization, knowledge, research, market, competitors, partners, requests, activity]
     .map((result) => result.error)
     .filter(Boolean);
@@ -97,6 +105,10 @@ export async function retrieveOrganizationEvidence(organizationId: string, quest
   for (const row of activity.data || []) {
     items.push(evidence("ACTIVITY", row, row.action, clean([row.entity_type, row.metadata]), questionTokens, row.created_at));
   }
+  for(const row of products.data||[]) items.push(evidence("PRODUCT_PROFILE",row,row.product_name,clean([row.product_description,row.intended_use,row.clinical_use,row.target_customer,row.target_department,row.business_goal,row.keywords_en,row.keywords_zh,row.formal_terms_zh,row.procurement_terms_zh,row.distributor_terms_zh,row.regulatory_terms_zh,`Terminology status: ${row.terminology_status}`]),questionTokens,row.updated_at));
+  for(const row of productEvidence.data||[]) items.push(evidence("REGULATORY_EVIDENCE",row,row.source_title,clean([`FACT: ${row.extracted_fact}`,row.fact_type,row.confidence,row.verification_status,row.regulatory_relevance,row.commercial_relevance]),questionTokens,row.retrieved_at,row.source_title,row.source_url));
+  for(const row of regulatoryMatches.data||[]) items.push(evidence("REGULATORY_MATCH",row,row.document_name,clean([`ASSESSMENT: ${row.applicability}`,row.authority,row.document_number,row.status,row.confidence,row.applicability_reason,row.requirements_summary,row.questions_to_validate]),questionTokens,row.last_checked_at,row.authority,row.source_url||undefined));
+  for(const row of fitAssessments.data||[]) items.push(evidence("OPPORTUNITY_ASSESSMENT",row,humanAssessmentTitle(row.overall_assessment),clean([`ASSESSMENT: ${row.overall_assessment}`,row.why_it_matters,row.concerns,`UNKNOWNS: ${clean([row.unknowns])}`,row.recommended_next_action,row.confidence]),questionTokens,row.updated_at));
 
   const kindPriority: Record<EvidenceKind, number> = {
     CLIENT_INFORMATION: 6,
@@ -107,6 +119,10 @@ export async function retrieveOrganizationEvidence(organizationId: string, quest
     REQUEST: 2,
     ACTIVITY: 1,
     ORGANIZATION: 3,
+    PRODUCT_PROFILE: 8,
+    REGULATORY_EVIDENCE: 9,
+    REGULATORY_MATCH: 7,
+    OPPORTUNITY_ASSESSMENT: 7,
   };
   const ranked = items.sort((a, b) => (b.score + kindPriority[b.kind]) - (a.score + kindPriority[a.kind]));
   const selected: EvidenceItem[] = [];

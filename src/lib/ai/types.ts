@@ -6,7 +6,11 @@ export type EvidenceKind =
   | "PARTNER"
   | "REQUEST"
   | "ACTIVITY"
-  | "ORGANIZATION";
+  | "ORGANIZATION"
+  | "PRODUCT_PROFILE"
+  | "REGULATORY_EVIDENCE"
+  | "REGULATORY_MATCH"
+  | "OPPORTUNITY_ASSESSMENT";
 
 export type EvidenceItem = {
   key: string;

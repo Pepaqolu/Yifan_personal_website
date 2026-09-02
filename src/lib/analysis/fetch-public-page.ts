@@ -131,7 +131,13 @@ async function download(url: URL, redirects = 0): Promise<RetrievedPage> {
         chunks.push(chunk);
       });
       response.on("end", () => {
-        const content = Buffer.concat(chunks).toString("utf8");
+        const charset = type.match(/charset\s*=\s*["']?([^;"'\s]+)/)?.[1]?.toLowerCase() || "utf-8";
+        let content: string;
+        try {
+          content = new TextDecoder(charset === "gb2312" || charset === "gbk" ? "gb18030" : charset).decode(Buffer.concat(chunks));
+        } catch {
+          content = Buffer.concat(chunks).toString("utf8");
+        }
         const cleaned = type.includes("text/html") ? cleanHtml(content) : { title: "", text: content.replace(/\s+/g, " ").trim().slice(0, MAX_TEXT) };
         if (cleaned.text.length < 80) return reject(new Error("The webpage did not contain enough readable product information."));
         resolve({ url: url.toString(), ...cleaned });

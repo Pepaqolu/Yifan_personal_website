@@ -1,5 +1,7 @@
 export const clientNavigation = [
   ["Overview", "/meridian/app", ""],
+  ["Product Profile", "/meridian/app/product", "PRODUCT"],
+  ["Regulatory Map", "/meridian/app/regulatory", ""],
   ["Opportunity Map", "/meridian/app/partners", "DISCOVER"],
   ["Competitors", "/meridian/app/competitors", ""],
   ["Companies", "/meridian/app/partners?view=companies", ""],
@@ -14,6 +16,7 @@ export const clientNavigation = [
 export const adminNavigation = [
   ["Overview", "/admin", ""],
   ["Intelligence", "/admin/intelligence", "CONTROL"],
+  ["Medtech Workflow", "/admin/medtech", ""],
   ["Clients", "/admin/clients", ""],
   ["Requests", "/admin/requests", "WORK"],
   ["Research", "/admin/research", ""],
