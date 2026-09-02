@@ -75,6 +75,49 @@ export type PartnerAssessment = {
   evidenceLimitations: string[];
 };
 
+export type OpportunitySnapshotInput = {
+  companyWebsite: string;
+  companyName: string;
+  productDescription: string;
+  industry: string;
+  goals: string[];
+  targetBuyers: string[];
+  targetBuyerCustom: string;
+  chinaStatus: string;
+  additionalContext: string;
+  retrievedPage?: { url: string; title: string; text: string };
+  retrievalLimitation?: string;
+};
+
+export type OpportunitySnapshot = {
+  mode: "MARKET_ENTRY" | "SOURCING" | "HYBRID";
+  companyUnderstanding: {
+    company: string;
+    product: string;
+    summary: string;
+    likelyBuyer: string;
+  };
+  verifiedInformation: string[];
+  opportunityScore: {
+    total: number;
+    label: string;
+    factors: Array<{ label: string; score: number; rationale: string }>;
+  };
+  bestFitBuyerTypes: Array<{ type: string; why: string }>;
+  competitiveLandscape: string[];
+  chineseSearchStrategy: Array<{ category: string; terms: string[] }>;
+  keyRisks: Array<{ risk: string; why: string }>;
+  recommendedActions: Array<{ action: string; why: string }>;
+  sourcing?: {
+    likelyRegions: string[];
+    supplierArchetypes: string[];
+    moqConsiderations: string[];
+    dueDiligenceChecklist: string[];
+  };
+  questionsToValidate: string[];
+  limitations: string[];
+};
+
 export type AIResult<T> = {
   value: T;
   model: string;
@@ -91,4 +134,5 @@ export interface AIProvider {
   generateMarketPulse(input: { material: string; clientContext: string }): Promise<AIResult<MarketPulseDraft>>;
   analyzeCompetitor(input: { facts: string; clientContext: string }): Promise<AIResult<CompetitorAssessment>>;
   analyzePartner(input: { facts: string; clientContext: string }): Promise<AIResult<PartnerAssessment>>;
+  generateOpportunitySnapshot(input: OpportunitySnapshotInput): Promise<AIResult<OpportunitySnapshot>>;
 }

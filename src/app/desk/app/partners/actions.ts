@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireWorkspace } from "@/lib/china-desk/auth";
 import { partnerStatuses } from "@/lib/china-desk/constants";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 function value(form: FormData, key: string, max = 4000) { return String(form.get(key) ?? "").trim().slice(0, max); }
 
@@ -18,9 +19,10 @@ export async function updateOpportunity(form: FormData) {
   const email = value(form, "email", 320);
   const phone = value(form, "phone", 100);
   const wechat = value(form, "wechat", 160);
+  const nextAction = value(form, "next_action", 1000);
   if (!partnerStatuses.includes(status as (typeof partnerStatuses)[number])) throw new Error("Invalid pipeline stage.");
   const supabase = await createClient();
-  const { error } = await supabase.from("partners").update({ status, notes: notes || null, contact_person: contactPerson || null, contact_role: contactRole || null, email: email || null, phone: phone || null, wechat: wechat || null }).eq("id", id).eq("organization_id", context.organization.id);
+  const { error } = await supabase.from("partners").update({ status, notes: notes || null, next_action: nextAction || null, contact_person: contactPerson || null, contact_role: contactRole || null, email: email || null, phone: phone || null, wechat: wechat || null }).eq("id", id).eq("organization_id", context.organization.id);
   if (error) throw new Error(error.message);
   await supabase.from("activity").insert({ organization_id: context.organization.id, actor_id: context.user.id, action: `Opportunity moved to ${status.replaceAll("_", " ").toLowerCase()}`, entity_type: "partner", entity_id: id });
   revalidatePath("/meridian/app/partners");
@@ -48,6 +50,9 @@ export async function requestLocalVerification(form: FormData) {
   const supabase = await createClient();
   const { data, error } = await supabase.from("requests").insert({ organization_id: context.organization.id, title: `Local verification: ${company}`, description: `Verify this Meridian opportunity before further commercial action.\n\nOpportunity ID: ${partnerId}\n\nRequested checks: company existence, registration, address, product portfolio, represented brands, contact information and Chinese-language reputation.`, request_type: "Research a company", priority: "MEDIUM", status: "SUBMITTED", created_by: context.user.id }).select("id").single();
   if (error || !data) throw new Error(error?.message || "Verification request could not be created.");
+  const admin = createAdminClient();
+  const { error: verificationError } = await admin.from("partners").update({ verification_status:"REQUESTED" }).eq("id",partnerId).eq("organization_id",context.organization.id);
+  if (verificationError) throw new Error(verificationError.message);
   await supabase.from("activity").insert({ organization_id: context.organization.id, actor_id: context.user.id, action: `Local verification requested: ${company}`, entity_type: "request", entity_id: data.id });
   revalidatePath("/meridian/app/partners");
   revalidatePath("/meridian/app/requests");

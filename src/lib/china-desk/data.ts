@@ -1,8 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export type MarketUpdate = { id: string; title: string; summary: string; category: string; priority: string; source_url: string | null; source_name: string | null; notes: string | null; published_at: string | null; updated_at: string };
 export type Competitor = { id: string; company_name: string; chinese_name: string | null; website: string | null; location: string | null; segment: string | null; description: string | null; products: string[]; pricing_notes: string | null; positioning: string | null; recent_activity: string | null; priority: string; external_client_notes: string | null; sources: string[]; ai_assessment: Record<string, unknown> | null; ai_assessment_updated_at: string | null; updated_at: string };
-export type Partner = { id: string; company_name: string; chinese_name: string | null; partner_type: string; location: string | null; website: string | null; contact_person: string | null; contact_role: string | null; wechat: string | null; email: string | null; phone: string | null; english_ability: string | null; interest_level: string | null; status: string; last_contact: string | null; notes: string | null; source: string | null; ai_assessment: Record<string, unknown> | null; ai_assessment_updated_at: string | null; updated_at: string };
+export type Partner = { id: string; company_name: string; chinese_name: string | null; partner_type: string; location: string | null; website: string | null; description: string | null; products: string[]; brands: string[]; market_segment: string | null; fit_score: number | null; fit_explanation: Record<string, unknown> | null; sources: Array<{name?:string;url?:string}>; next_action: string | null; verification_status: string; contact_person: string | null; contact_role: string | null; wechat: string | null; email: string | null; phone: string | null; english_ability: string | null; interest_level: string | null; status: string; last_contact: string | null; notes: string | null; source: string | null; ai_assessment: Record<string, unknown> | null; ai_assessment_updated_at: string | null; updated_at: string };
 export type ResearchAttachment = {
   name: string;
   path: string;
@@ -23,7 +24,7 @@ async function list<T>(table: string, organizationId: string, select = "*", orde
 
 export const getMarketUpdates = (organizationId: string) => list<MarketUpdate>("market_updates", organizationId, "id,title,summary,category,priority,source_url,source_name,notes,published_at,updated_at", "published_at");
 export const getCompetitors = (organizationId: string) => list<Competitor>("competitors", organizationId, "id,company_name,chinese_name,website,location,segment,description,products,pricing_notes,positioning,recent_activity,priority,external_client_notes,sources,ai_assessment,ai_assessment_updated_at,updated_at");
-export const getPartners = (organizationId: string) => list<Partner>("partners", organizationId, "id,company_name,chinese_name,partner_type,location,website,contact_person,contact_role,wechat,email,phone,english_ability,interest_level,status,last_contact,notes,source,ai_assessment,ai_assessment_updated_at,updated_at");
+export const getPartners = (organizationId: string) => list<Partner>("partners", organizationId, "id,company_name,chinese_name,partner_type,location,website,description,products,brands,market_segment,fit_score,fit_explanation,sources,next_action,verification_status,contact_person,contact_role,wechat,email,phone,english_ability,interest_level,status,last_contact,notes,source,ai_assessment,ai_assessment_updated_at,updated_at");
 export const getResearchReports = (organizationId: string) => list<ResearchReport>("research_reports", organizationId, "id,title,category,summary,status,full_content,sources,attachments,created_at,updated_at");
 export const getRequests = (organizationId: string) => list<ClientRequest>("requests", organizationId, "id,title,description,request_type,priority,status,updates,created_at,updated_at");
 export const getKnowledgeItems = (organizationId: string) => list<KnowledgeItem>("knowledge_items", organizationId, "id,title,category,content,tags,source,created_at,updated_at");
@@ -42,7 +43,7 @@ export async function getOverview(organizationId: string) {
     supabase.from("competitors").select("id", { count: "exact", head: true }).eq("organization_id", organizationId),
     supabase.from("competitors").select("id", { count: "exact", head: true }).eq("organization_id", organizationId).gte("updated_at", new Date(Date.now() - 30 * 86400000).toISOString()),
     supabase.from("partners").select("id", { count: "exact", head: true }).eq("organization_id", organizationId),
-    supabase.from("partners").select("id", { count: "exact", head: true }).eq("organization_id", organizationId).in("status", ["QUALIFIED", "CONTACTED", "INTERESTED", "ACTIVE"]),
+    supabase.from("partners").select("id", { count: "exact", head: true }).eq("organization_id", organizationId).in("status", ["QUALIFIED", "CONTACTED", "REPLIED", "INTERESTED", "NEGOTIATING", "ACTIVE"]),
     supabase.from("partners").select("id", { count: "exact", head: true }).eq("organization_id", organizationId).eq("status", "IDENTIFIED"),
     supabase.from("partners").select("id", { count: "exact", head: true }).eq("organization_id", organizationId).eq("status", "QUALIFIED"),
     supabase.from("partners").select("id", { count: "exact", head: true }).eq("organization_id", organizationId).eq("status", "INTERESTED"),
@@ -56,21 +57,30 @@ export async function getOverview(organizationId: string) {
 
 export async function getOrganizations() {
   const supabase = await createClient();
-  const { data, error } = await supabase.from("organizations").select("id,name,slug,created_at,ai_response_mode,onboarding_completed_at,onboarding_skipped_at").order("name");
+  const { data, error } = await supabase.from("organizations").select("id,name,slug,created_at,ai_response_mode,onboarding_completed_at,onboarding_skipped_at,trial_started_at,trial_ends_at,source_analysis_id").order("name");
   if (error) throw new Error(error.message);
-  return (data ?? []) as Array<{ id: string; name: string; slug: string; created_at: string; ai_response_mode: "DIRECT" | "REVIEW"; onboarding_completed_at: string | null; onboarding_skipped_at: string | null }>;
+  return (data ?? []) as Array<{ id: string; name: string; slug: string; created_at: string; ai_response_mode: "DIRECT" | "REVIEW"; onboarding_completed_at: string | null; onboarding_skipped_at: string | null; trial_started_at:string|null; trial_ends_at:string|null; source_analysis_id:string|null }>;
 }
 
 export async function getAdminOverview() {
   const supabase = await createClient();
-  const [clients, requests, research, partners, activity] = await Promise.all([
+  const admin = createAdminClient();
+  const now = new Date();
+  const inThreeDays = new Date(now.getTime()+3*86400000).toISOString();
+  const [clients, requests, research, partners, activity, analyses, trials, trialsExpiring, conversions, verifications, recentAnalyses] = await Promise.all([
     supabase.from("organizations").select("id", { count: "exact", head: true }),
     supabase.from("requests").select("id", { count: "exact", head: true }).not("status", "in", "(COMPLETED,CANCELLED)"),
     supabase.from("research_reports").select("id", { count: "exact", head: true }).eq("status", "IN_PROGRESS"),
     supabase.from("partners").select("id", { count: "exact", head: true }).gte("created_at", new Date(Date.now() - 30 * 86400000).toISOString()),
     supabase.from("activity").select("id,action,entity_type,created_at,metadata,organizations(name)").order("created_at", { ascending: false }).limit(12),
+    admin.from("analysis_requests").select("id",{count:"exact",head:true}),
+    admin.from("organizations").select("id",{count:"exact",head:true}).not("trial_started_at","is",null).gt("trial_ends_at",now.toISOString()),
+    admin.from("organizations").select("id",{count:"exact",head:true}).not("trial_started_at","is",null).gt("trial_ends_at",now.toISOString()).lte("trial_ends_at",inThreeDays),
+    admin.from("analysis_requests").select("id",{count:"exact",head:true}).not("claimed_by","is",null),
+    admin.from("requests").select("id",{count:"exact",head:true}).ilike("title","Local verification:%").not("status","in","(COMPLETED,CANCELLED)"),
+    admin.from("analysis_requests").select("id,company_name,company_website,status,created_at,claimed_by").order("created_at",{ascending:false}).limit(8),
   ]);
-  return { clients: clients.count ?? 0, requests: requests.count ?? 0, research: research.count ?? 0, partners: partners.count ?? 0, activity: activity.data ?? [] };
+  return { clients: clients.count ?? 0, requests: requests.count ?? 0, research: research.count ?? 0, partners: partners.count ?? 0, activity: activity.data ?? [], analyses:analyses.count??0, trials:trials.count??0, trialsExpiring:trialsExpiring.count??0, conversions:conversions.count??0, verifications:verifications.count??0, recentAnalyses:recentAnalyses.data??[] };
 }
 
 export async function getAdminRecords<T>(table: string, organizationId?: string, select = "*,organizations(name)") {

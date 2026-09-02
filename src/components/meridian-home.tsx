@@ -41,19 +41,18 @@ export function MeridianHome() {
   const name = productConfig.shortName.toUpperCase();
   return (
     <main>
-      <section id="top" className="technical-grid relative overflow-hidden border-b border-line pt-36 sm:pt-44">
-        <div className="page-shell pb-20 sm:pb-28">
-          <Reveal>
-            <p className="eyebrow text-accent">{name} · BY YIFAN FU</p>
-            <h1 className="mt-8 max-w-[12ch] text-[clamp(4rem,9.2vw,9.5rem)] font-medium leading-[0.86] tracking-[-0.075em]">{productConfig.tagline}</h1>
+      <section id="top" className="technical-grid relative overflow-hidden border-b border-line pt-32 sm:pt-40">
+        <div className="page-shell grid gap-14 pb-16 lg:grid-cols-12 lg:items-center sm:pb-24">
+          <div className="lg:col-span-7"><Reveal>
+            <p className="eyebrow text-accent">{name}</p>
+            <h1 className="mt-8 max-w-[10ch] text-[clamp(4rem,8.4vw,8.8rem)] font-medium leading-[0.84] tracking-[-0.078em]">{productConfig.tagline}</h1>
+            <p className="mt-8 max-w-2xl text-lg leading-[1.55] text-charcoal sm:text-xl">{productConfig.description}</p>
           </Reveal>
-          <div className="mt-12 grid gap-10 border-t border-line pt-8 md:mt-16 md:grid-cols-12">
-            <Reveal className="md:col-span-6"><p className="max-w-2xl text-lg leading-[1.55] text-charcoal sm:text-2xl">{productConfig.description}</p></Reveal>
-            <Reveal delay={0.08} className="order-first flex flex-wrap items-start gap-x-8 gap-y-5 md:order-none md:col-span-5 md:col-start-8 md:justify-end">
+          <Reveal delay={0.08} className="mt-10 flex flex-wrap items-start gap-x-8 gap-y-5">
               <AnalyticsLink eventName="analyze_clicked" eventLocation="homepage-hero" href={productConfig.routes.analyze} className="group inline-flex items-center gap-3 rounded-xl bg-accent px-5 py-3.5 text-sm font-semibold text-[#071018] transition-colors hover:bg-ice-bright">Analyze my China opportunity <span className="transition-transform group-hover:translate-x-1">→</span></AnalyticsLink>
               <AnalyticsLink eventName="demo_clicked" eventLocation="homepage-hero" href={productConfig.routes.demo} className="group inline-flex items-center gap-3 py-3.5 text-sm font-medium text-charcoal transition-colors hover:text-ink">See live demo <span className="text-accent transition-transform group-hover:translate-x-1">→</span></AnalyticsLink>
-            </Reveal>
-          </div>
+          </Reveal></div>
+          <Reveal delay={0.12} className="overflow-hidden rounded-[24px] border border-line-strong bg-elevated shadow-[var(--shadow-elevated)] lg:col-span-5"><header className="flex items-center justify-between border-b border-line px-5 py-4"><div><p className="eyebrow text-accent">CHINA OPPORTUNITY MAP</p><p className="mt-2 text-xs text-stone">ACME MEDICAL</p></div><DemoLabel/></header><div className="p-5 sm:p-6"><div className="flex items-end justify-between gap-5"><div><p className="eyebrow text-stone">MARKET OPPORTUNITY</p><p className="mt-3 text-sm text-charcoal">Promising · validation needed</p></div><div className="flex items-baseline gap-2"><span className="text-6xl font-medium leading-none tracking-[-0.08em] text-accent">87</span><span className="font-mono text-[0.6rem] text-stone">/100</span></div></div><div className="mt-7 grid grid-cols-3 overflow-hidden rounded-xl border border-line bg-soft">{[["Competitors","12"],["Partners","37"],["High fit","08"]].map(([label,value])=><div key={label} className="border-r border-line p-3 last:border-r-0"><p className="font-mono text-[0.52rem] uppercase tracking-[0.08em] text-stone">{label}</p><p className="mt-3 text-2xl font-medium text-ink">{value}</p></div>)}</div><div className="mt-7"><p className="eyebrow text-stone">TOP OPPORTUNITIES</p>{opportunities.slice(0,2).map((item,index)=><div key={item.company} className="mt-4 grid grid-cols-[1fr_auto] gap-4 border-t border-line pt-4"><div><p className="text-sm font-medium">{String(index+1).padStart(2,"0")} · {item.company}</p><p className="mt-1 text-xs text-stone">{item.type} · {item.location}</p></div><span className="text-xl font-medium text-accent">{item.score}</span></div>)}</div></div></Reveal>
         </div>
       </section>
 
@@ -86,7 +85,7 @@ export function MeridianHome() {
 
       <section id="contact" className="py-28 sm:py-40"><div className="page-shell"><Reveal><p className="eyebrow text-accent">START WITH YOUR COMPANY</p><h2 className="mt-7 max-w-[14ch] text-[clamp(3.6rem,8vw,8rem)] font-medium leading-[0.88] tracking-[-0.075em]">What could China look like for your company?</h2><div className="mt-12 flex flex-wrap gap-x-8 gap-y-5"><AnalyticsLink eventName="analyze_clicked" eventLocation="homepage-final" href={productConfig.routes.analyze} className="group inline-flex items-center gap-3 rounded-xl bg-accent px-5 py-3.5 text-sm font-semibold text-[#071018] hover:bg-ice-bright">Analyze my China opportunity <span className="transition-transform group-hover:translate-x-1">→</span></AnalyticsLink><AnalyticsLink eventName="demo_clicked" eventLocation="homepage-final" href={productConfig.routes.demo} className="group inline-flex items-center gap-3 py-3.5 text-sm font-medium text-charcoal hover:text-ink">See live demo <span className="text-accent transition-transform group-hover:translate-x-1">→</span></AnalyticsLink></div><AnalyticsLink eventName="email_clicked" eventLocation="homepage-final" href={`mailto:${productConfig.email}`} className="mt-14 inline-block border-b border-line pb-1 text-sm text-stone transition-colors hover:border-accent hover:text-ink">{productConfig.email}</AnalyticsLink></Reveal></div></section>
 
-      <footer className="border-t border-line py-8"><div className="page-shell flex flex-wrap items-center justify-between gap-4 font-mono text-[0.6rem] uppercase tracking-[0.12em] text-stone"><p>{name}</p><p>Built by Yifan Fu in Shenzhen.</p><p>China ↔ World</p></div></footer>
+      <footer className="border-t border-line py-8"><div className="page-shell flex flex-wrap items-center justify-between gap-4 font-mono text-[0.6rem] uppercase tracking-[0.12em] text-stone"><p>{name}</p><p>China Opportunity Intelligence</p><p>© {new Date().getFullYear()} {productConfig.shortName}</p><p>China ↔ World</p></div></footer>
     </main>
   );
 }

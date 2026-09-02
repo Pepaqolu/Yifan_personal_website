@@ -15,6 +15,9 @@ export type WorkspaceContext = {
     ai_response_mode: "DIRECT" | "REVIEW";
     onboarding_completed_at: string | null;
     onboarding_skipped_at: string | null;
+    trial_started_at: string | null;
+    trial_ends_at: string | null;
+    source_analysis_id: string | null;
   } | null;
 };
 
@@ -29,7 +32,7 @@ export async function getWorkspaceContext(): Promise<WorkspaceContext | null> {
     supabase.from("profiles").select("first_name,last_name,role").eq("id", userId).single(),
     supabase
       .from("organization_members")
-      .select("organizations(id,name,slug,ai_response_mode,onboarding_completed_at,onboarding_skipped_at)")
+      .select("organizations(id,name,slug,ai_response_mode,onboarding_completed_at,onboarding_skipped_at,trial_started_at,trial_ends_at,source_analysis_id)")
       .eq("user_id", userId)
       .limit(1)
       .maybeSingle(),
