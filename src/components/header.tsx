@@ -22,7 +22,7 @@ export function Header() {
           </a>
           <nav aria-label="Primary navigation">
             <ul className="flex items-center gap-4 sm:gap-7">
-              {[{label:"Product",href:"#product"},{label:"How it works",href:"#how"},{label:"Demo",href:productConfig.routes.demo},{label:"Sign in",href:productConfig.routes.login}].map((item, index) => (
+              {[{label:"Advantage",href:"#intelligence"},{label:"Product",href:"#product"},{label:"Demo",href:productConfig.routes.demo},{label:"Sign in",href:productConfig.routes.login}].map((item, index) => (
                 <li key={item.href} className={index < 2 ? "hidden sm:block" : undefined}>
                   {item.label === "Demo" ? (
                     <AnalyticsLink eventName="demo_clicked" eventLocation="homepage-nav" href={item.href} className="font-mono text-[0.58rem] uppercase tracking-[0.11em] text-charcoal transition-colors duration-500 hover:text-accent sm:text-[0.65rem]">{item.label}</AnalyticsLink>

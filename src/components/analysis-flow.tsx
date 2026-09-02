@@ -16,13 +16,13 @@ function Choice({ value, selected, onToggle, type = "checkbox" }: { value: strin
   return <label className={`group flex min-h-14 cursor-pointer items-center justify-between rounded-xl border px-4 py-3.5 text-sm transition-[border-color,background-color,color,transform] hover:-translate-y-px ${selected ? "border-accent/45 bg-accent/[0.11] text-ink" : "border-line bg-white/[0.018] text-charcoal hover:border-line-strong hover:text-ink"}`}><span>{value}</span><input className="sr-only" type={type} checked={selected} onChange={onToggle} /><span aria-hidden="true" className={`h-2.5 w-2.5 rounded-full transition-colors ${selected ? "bg-accent shadow-[0_0_12px_rgba(141,212,255,0.55)]" : "bg-stone/30"}`} /></label>;
 }
 
-export function AnalysisFlow() {
+export function AnalysisFlow({ initialWebsite = "" }: { initialWebsite?: string }) {
   const router = useRouter();
   const [state, action, pending] = useActionState(submitAnalysisRequest, initialState);
   const [step, setStep] = useState(1);
   const [started, setStarted] = useState(false);
   const [urlTracked, setUrlTracked] = useState(false);
-  const [website, setWebsite] = useState("");
+  const [website, setWebsite] = useState(initialWebsite);
   const [companyName, setCompanyName] = useState("");
   const [description, setDescription] = useState("");
   const [industry, setIndustry] = useState("Medical technology");

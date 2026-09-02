@@ -1,9 +1,9 @@
 export const productConfig = {
   name: "Meridian",
   shortName: "Meridian",
-  tagline: "Find your customers and partners in China.",
+  tagline: "Find the right companies in China.",
   description:
-    "AI-powered China market intelligence that finds, scores and tracks real commercial opportunities — with people on the ground when verification matters.",
+    "Meridian finds the companies and market signals that matter to your business.",
   email: "yifanevanfu@gmail.com",
   launch: {
     enabled: true,
