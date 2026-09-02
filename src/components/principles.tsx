@@ -10,7 +10,7 @@ export function Principles() {
   const storyRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: storyRef, offset: ["start start", "end end"] });
-  const backgroundColor = useTransform(scrollYProgress, [0, 0.5, 1], ["#f5f5f2", "#eeeeea", "#e3e3de"]);
+  const backgroundColor = useTransform(scrollYProgress, [0, 0.5, 1], ["#07090c", "#0b0e13", "#10141a"]);
   const firstOpacity = useTransform(scrollYProgress, [0, 0.25, 0.3, 0.34], [1, 1, 1, 0]);
   const secondOpacity = useTransform(scrollYProgress, [0, 0.3, 0.35, 0.55, 0.6, 1], [0, 0, 1, 1, 0, 0]);
   const thirdOpacity = useTransform(scrollYProgress, [0, 0.58, 0.63, 1], [0, 0, 1, 1]);

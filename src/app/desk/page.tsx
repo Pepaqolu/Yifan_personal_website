@@ -21,11 +21,11 @@ export default function DeskPage() {
     <>
       <DeskHeader />
       <main>
-        <section className="min-h-[100svh] bg-paper">
+        <section className="technical-grid min-h-[100svh] bg-paper">
           <div className="page-shell flex min-h-[100svh] flex-col justify-center pb-16 pt-36 sm:pt-32">
             <Reveal>
               <p className="eyebrow text-stone">YIFAN FU / CHINA DESK</p>
-              <h1 className="mt-10 max-w-[10ch] text-[clamp(5rem,13vw,13rem)] font-medium leading-[0.82] tracking-[-0.08em]">China,<br /><span className="text-stone">from the inside.</span></h1>
+              <h1 className="mt-10 max-w-[10ch] text-[clamp(5rem,13vw,13rem)] font-medium leading-[0.82] tracking-[-0.08em]">China,<br /><span className="text-charcoal">from the inside.</span></h1>
             </Reveal>
             <div className="mt-16 grid gap-12 border-t border-line pt-8 md:mt-24 md:grid-cols-12 md:gap-8">
               <Reveal className="md:col-span-6 md:col-start-2">
@@ -39,7 +39,7 @@ export default function DeskPage() {
           </div>
         </section>
 
-        <section className="bg-paper">
+        <section className="bg-dark-soft">
           <div className="page-shell py-36 sm:py-56">
             <Reveal>
               <p className="eyebrow text-stone">CONTINUOUS BY DESIGN</p>
@@ -52,12 +52,12 @@ export default function DeskPage() {
           </div>
         </section>
 
-        <section className="bg-paper">
+        <section className="bg-dark-soft">
           <div className="page-shell pb-40 sm:pb-60">
             <p className="eyebrow text-stone">THE DESK</p>
             <div className="mt-16 border-t border-line sm:mt-24">
               {desk.capabilities.map((capability) => (
-                <div key={capability.number} className="grid gap-4 border-b border-line py-8 sm:grid-cols-12 sm:items-baseline sm:gap-6 sm:py-10">
+                <div key={capability.number} className="grid gap-4 border-b border-line py-8 transition-colors duration-500 hover:bg-white/[0.018] sm:grid-cols-12 sm:items-baseline sm:gap-6 sm:px-5 sm:py-10">
                   <span className="font-mono text-[0.65rem] text-stone sm:col-span-1">{capability.number}</span>
                   <h3 className="text-[clamp(1.8rem,3.5vw,3.5rem)] font-medium tracking-[-0.055em] sm:col-span-5">{capability.title}</h3>
                   <p className="max-w-xl text-sm leading-[1.65] text-stone sm:col-span-5 sm:col-start-8 sm:text-base">{capability.description}</p>
@@ -67,7 +67,7 @@ export default function DeskPage() {
           </div>
         </section>
 
-        <section className="bg-dark-soft text-paper">
+        <section className="bg-elevated text-paper">
           <div className="page-shell py-40 sm:py-60">
             <Reveal>
               {desk.differentiator.lines.map((line, index) => <p key={line} className={`max-w-[14ch] text-[clamp(3.4rem,8vw,8rem)] font-medium leading-[0.9] tracking-[-0.072em] ${index ? "text-paper/45" : ""}`}>{line}</p>)}
@@ -80,7 +80,7 @@ export default function DeskPage() {
           </div>
         </section>
 
-        <section className="bg-paper">
+        <section className="bg-dark-soft">
           <div className="page-shell py-40 sm:py-60">
             <Reveal><h2 className="max-w-[14ch] text-[clamp(3.5rem,8vw,8rem)] font-medium leading-[0.9] tracking-[-0.072em]">{desk.compounding.headline}</h2></Reveal>
             <div className="mt-28 grid gap-16 border-t border-line pt-8 md:mt-44 md:grid-cols-12 md:gap-8">

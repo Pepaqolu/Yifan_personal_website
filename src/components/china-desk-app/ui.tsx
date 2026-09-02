@@ -2,15 +2,15 @@ import type { ReactNode } from "react";
 import { humanize } from "@/lib/china-desk/constants";
 
 export function PageHeader({ eyebrow, title, description, action }: { eyebrow: string; title: string; description?: string; action?: ReactNode }) {
-  return <header className="mb-12 border-b border-line pb-8 sm:mb-16"><div className="flex items-center justify-between gap-6"><p className="eyebrow text-stone">{eyebrow}</p>{action}</div><h1 className="mt-6 text-[clamp(2.8rem,6vw,6rem)] font-medium leading-[0.9] tracking-[-0.068em]">{title}</h1>{description ? <p className="mt-6 max-w-2xl text-base leading-7 text-stone sm:text-lg">{description}</p> : null}</header>;
+  return <header className="mb-10 border-b border-line pb-7 sm:mb-12"><div className="flex items-center justify-between gap-6"><p className="eyebrow text-stone">{eyebrow}</p>{action}</div><h1 className="mt-5 text-[clamp(2.5rem,5vw,4.75rem)] font-medium leading-[0.92] tracking-[-0.062em]">{title}</h1>{description ? <p className="mt-5 max-w-2xl text-sm leading-6 text-charcoal sm:text-base">{description}</p> : null}</header>;
 }
 
 export function Status({ children }: { children: string }) {
-  return <span className="font-mono text-[0.58rem] uppercase tracking-[0.08em] text-stone">{humanize(children)}</span>;
+  return <span className="inline-flex rounded-md border border-line bg-white/[0.025] px-2 py-1 font-mono text-[0.56rem] uppercase tracking-[0.09em] text-charcoal">{humanize(children)}</span>;
 }
 
 export function EmptyState({ title, description }: { title: string; description: string }) {
-  return <section className="border-y border-line py-16"><p className="text-2xl font-medium tracking-[-0.04em]">{title}</p><p className="mt-3 max-w-lg text-sm leading-6 text-stone">{description}</p></section>;
+  return <section className="rounded-2xl border border-line bg-elevated px-6 py-14 sm:px-8"><p className="eyebrow text-stone">EMPTY</p><p className="mt-5 text-2xl font-medium tracking-[-0.04em]">{title}</p><p className="mt-3 max-w-lg text-sm leading-6 text-stone">{description}</p></section>;
 }
 
 export function ErrorState({ message = "China Desk could not load this workspace. Try again, or contact Yifan if the issue continues." }: { message?: string }) {

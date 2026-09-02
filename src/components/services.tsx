@@ -42,6 +42,10 @@ export function Services() {
 
       <div className="page-shell py-36 sm:py-56 lg:py-60">
         <Reveal>
+          <div className="mb-20 grid gap-4 border-y border-paper/10 py-5 sm:grid-cols-2 sm:items-center">
+            <p className="eyebrow text-accent">BETWEEN MARKETS</p>
+            <p className="text-sm text-paper/50 sm:text-right">China market advisory by Yifan Fu.</p>
+          </div>
           <h2 className="max-w-[10ch] text-[clamp(4.5rem,11vw,11rem)] font-medium leading-[0.84] tracking-[-0.075em]">{siteContent.advisory.title}</h2>
           <p className="mt-16 max-w-2xl text-lg leading-[1.6] tracking-[-0.025em] text-paper/58 sm:mt-24 sm:text-2xl">{siteContent.advisory.audience}</p>
         </Reveal>

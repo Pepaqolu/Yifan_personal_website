@@ -22,8 +22,8 @@ export function Experience() {
       <div id="between" ref={betweenRef} className="relative h-[185svh] scroll-mt-16 sm:h-[205svh]">
         <div className="sticky top-0 flex h-[100svh] items-center justify-center overflow-hidden bg-paper [contain:paint]">
           <motion.div style={{ opacity: reduceMotion ? 1 : charactersOpacity }} className="relative flex w-full items-center justify-center" aria-label="之间 — between">
-            <motion.span aria-hidden="true" style={{ x: reduceMotion ? 0 : leftX }} className="select-none text-[clamp(10.5rem,42vw,42rem)] font-medium leading-[0.62] tracking-[-0.13em] sm:text-[clamp(15rem,42vw,42rem)]">{siteContent.between.leftCharacter}</motion.span>
-            <motion.span aria-hidden="true" style={{ x: reduceMotion ? 0 : rightX }} className="select-none text-[clamp(10.5rem,42vw,42rem)] font-medium leading-[0.62] tracking-[-0.13em] sm:text-[clamp(15rem,42vw,42rem)]">{siteContent.between.rightCharacter}</motion.span>
+            <motion.span aria-hidden="true" style={{ x: reduceMotion ? 0 : leftX }} className="select-none text-[clamp(10.5rem,42vw,42rem)] font-medium leading-[0.62] tracking-[-0.13em] [text-shadow:0_0_50px_rgba(158,215,255,0.055)] sm:text-[clamp(15rem,42vw,42rem)]">{siteContent.between.leftCharacter}</motion.span>
+            <motion.span aria-hidden="true" style={{ x: reduceMotion ? 0 : rightX }} className="select-none text-[clamp(10.5rem,42vw,42rem)] font-medium leading-[0.62] tracking-[-0.13em] [text-shadow:0_0_50px_rgba(158,215,255,0.055)] sm:text-[clamp(15rem,42vw,42rem)]">{siteContent.between.rightCharacter}</motion.span>
           </motion.div>
           <motion.div style={{ y: reduceMotion ? 0 : copyY }} className="absolute inset-x-0 bottom-[10vh] text-center">
             <motion.p style={{ opacity: reduceMotion ? 1 : labelOpacity }} className="eyebrow text-accent">{siteContent.between.label}</motion.p>

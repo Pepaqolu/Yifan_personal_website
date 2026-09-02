@@ -1,23 +1,23 @@
 export const clientNavigation = [
-  ["Overview", "/desk/app"],
-  ["Ask China", "/desk/app/ask"],
-  ["Market Pulse", "/desk/app/market"],
-  ["Competitors", "/desk/app/competitors"],
-  ["Partners", "/desk/app/partners"],
-  ["Research", "/desk/app/research"],
-  ["Requests", "/desk/app/requests"],
-  ["Knowledge", "/desk/app/knowledge"],
+  ["Overview", "/desk/app", ""],
+  ["Market Pulse", "/desk/app/market", "INTELLIGENCE"],
+  ["Competitors", "/desk/app/competitors", ""],
+  ["Partners", "/desk/app/partners", ""],
+  ["Research", "/desk/app/research", "WORK"],
+  ["Requests", "/desk/app/requests", ""],
+  ["Knowledge", "/desk/app/knowledge", "CONTEXT"],
+  ["Ask China", "/desk/app/ask", "COMMAND"],
 ] as const;
 
 export const adminNavigation = [
-  ["Overview", "/admin"],
-  ["Intelligence", "/admin/intelligence"],
-  ["Clients", "/admin/clients"],
-  ["Requests", "/admin/requests"],
-  ["Research", "/admin/research"],
-  ["Partners", "/admin/partners"],
-  ["Competitors", "/admin/competitors"],
-  ["Market", "/admin/market"],
+  ["Overview", "/admin", ""],
+  ["Intelligence", "/admin/intelligence", "CONTROL"],
+  ["Clients", "/admin/clients", ""],
+  ["Requests", "/admin/requests", "WORK"],
+  ["Research", "/admin/research", ""],
+  ["Partners", "/admin/partners", "INTELLIGENCE"],
+  ["Competitors", "/admin/competitors", ""],
+  ["Market", "/admin/market", ""],
 ] as const;
 
 export const partnerStatuses = ["IDENTIFIED", "QUALIFIED", "CONTACTED", "INTERESTED", "ACTIVE", "NOT_A_FIT"] as const;

@@ -28,7 +28,7 @@ export function AskForm({ conversationId }: { conversationId?: string }) {
 
   return (
     <div>
-      <form action={action}>
+      <form action={action} className="rounded-[20px] border border-line bg-elevated p-5 shadow-[var(--shadow-elevated)] sm:p-7">
         <input type="hidden" name="conversation_id" value={conversationId || ""} />
         <label htmlFor="ask-china-question" className="sr-only">Ask your China Desk anything</label>
         <textarea
@@ -40,11 +40,11 @@ export function AskForm({ conversationId }: { conversationId?: string }) {
           maxLength={800}
           required
           placeholder="Ask your China Desk anything."
-          className="w-full resize-none border-b border-ink/20 bg-transparent pb-6 text-[clamp(2rem,5vw,4.5rem)] font-medium leading-[0.98] tracking-[-0.06em] outline-none placeholder:text-stone/35"
+          className="command-input w-full resize-none text-[clamp(1.8rem,4vw,3.75rem)] font-medium leading-[1] tracking-[-0.055em] outline-none placeholder:text-stone/35"
         />
         <div className="mt-6 flex items-center justify-between gap-6">
           <p aria-live="polite" className={`text-xs leading-5 ${state.success ? "text-stone" : "text-accent"}`}>{state.message}</p>
-          <button disabled={pending || question.trim().length < 5} className="shrink-0 border-b border-ink/25 pb-1.5 text-sm font-medium disabled:opacity-40">
+          <button disabled={pending || question.trim().length < 5} className="shrink-0 rounded-[10px] bg-accent px-4 py-2.5 text-sm font-medium text-[#071018] transition-colors hover:bg-ice-bright disabled:opacity-40">
             {pending ? "Reviewing context…" : "Ask China →"}
           </button>
         </div>
@@ -54,7 +54,7 @@ export function AskForm({ conversationId }: { conversationId?: string }) {
           <p className="eyebrow text-stone">SUGGESTED QUESTIONS</p>
           <div className="mt-5 flex flex-wrap gap-x-6 gap-y-3">
             {suggestions.map((suggestion) => (
-              <button key={suggestion} type="button" onClick={() => setQuestion(suggestion)} className="text-left text-sm text-stone transition-colors hover:text-ink">
+              <button key={suggestion} type="button" onClick={() => setQuestion(suggestion)} className="rounded-lg border border-line bg-white/[0.018] px-3 py-2 text-left text-xs leading-5 text-stone transition-colors hover:border-ink/15 hover:text-ink sm:text-sm">
                 {suggestion} →
               </button>
             ))}

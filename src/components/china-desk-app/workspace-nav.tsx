@@ -2,15 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Fragment } from "react";
 
-export function WorkspaceNav({ items }: { items: readonly (readonly [string, string])[] }) {
+export function WorkspaceNav({ items }: { items: readonly (readonly [string, string, string?])[] }) {
   const pathname = usePathname();
   return (
     <nav aria-label="Workspace navigation" className="overflow-x-auto">
-      <ul className="flex min-w-max gap-6 lg:block lg:min-w-0 lg:space-y-1 lg:gap-0">
-        {items.map(([label, href]) => {
+      <ul className="min-w-0 space-y-1">
+        {items.map(([label, href, group]) => {
           const active = href.endsWith("/app") || href === "/admin" ? pathname === href : pathname.startsWith(href);
-          return <li key={href}><Link href={href} aria-current={active ? "page" : undefined} className={`block py-2 text-sm transition-colors ${active ? "font-medium text-ink" : "text-stone hover:text-ink"}`}>{label}</Link></li>;
+          return <Fragment key={href}>{group ? <li aria-hidden="true" className="pb-2 pt-7 font-mono text-[0.56rem] uppercase tracking-[0.14em] text-stone first:pt-0">{group}</li> : null}<li><Link href={href} aria-current={active ? "page" : undefined} className={`relative block rounded-[9px] px-3 py-2.5 text-[0.82rem] transition-[color,background-color] duration-300 ${active ? "bg-accent/[0.08] font-medium text-accent before:absolute before:inset-y-2.5 before:left-0 before:w-px before:bg-accent" : "text-charcoal hover:bg-white/[0.025] hover:text-ink"}`}>{label}</Link></li></Fragment>;
         })}
       </ul>
     </nav>

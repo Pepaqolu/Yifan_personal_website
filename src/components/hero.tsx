@@ -14,7 +14,7 @@ export function Hero() {
   });
 
   return (
-    <section id="top" className="min-h-[100svh]">
+    <section id="top" className="technical-grid min-h-[100svh]">
       <div className="page-shell flex min-h-[100svh] flex-col justify-center pb-10 pt-24 sm:pb-12 sm:pt-28">
         <motion.h1 {...enter(0, 10, 0.72)} className="eyebrow text-stone">
           {siteContent.hero.name}
@@ -24,13 +24,13 @@ export function Hero() {
           <motion.p {...enter(0.24, 18, 0.9)} className="max-w-[10ch] text-[clamp(4.5rem,11.5vw,10rem)] font-medium leading-[0.84] tracking-[-0.075em]">
             {siteContent.hero.lineOne}
           </motion.p>
-          <motion.p {...enter(0.6, 16, 0.78)} className="mt-8 max-w-[18ch] text-[clamp(1.75rem,4.5vw,4.5rem)] font-medium leading-[0.98] tracking-[-0.06em] text-stone sm:mt-12">
+          <motion.p {...enter(0.6, 16, 0.78)} className="mt-8 max-w-[18ch] text-[clamp(1.75rem,4.5vw,4.5rem)] font-medium leading-[0.98] tracking-[-0.06em] text-charcoal sm:mt-12">
             {siteContent.hero.lineTwo}
           </motion.p>
         </div>
 
         <motion.div {...enter(0.9, 8, 0.6)} className="flex items-end justify-end border-t border-line pt-4">
-          <p className="text-sm font-medium tracking-[-0.025em] sm:text-base">
+          <p className="text-sm font-medium tracking-[-0.025em] text-accent sm:text-base">
             {siteContent.hero.axis}
           </p>
         </motion.div>
