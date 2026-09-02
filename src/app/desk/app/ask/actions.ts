@@ -92,7 +92,7 @@ export async function askChina(_: AskState, form: FormData): Promise<AskState> {
     .eq("organization_id", organizationId)
     .eq("user_id", context.user.id)
     .gte("created_at", since);
-  if ((count || 0) >= 50) return { message: "The daily Ask China limit has been reached. Please contact Yifan." };
+  if ((count || 0) >= 50) return { message: "The daily Ask Meridian limit has been reached. Please contact Yifan." };
 
   const requestKey = `ask:${organizationId}:${context.user.id}:${Math.floor(Date.now() / 300000)}:${await digest(question.toLowerCase())}`;
   const { data: reservation, error: reservationError } = await admin
@@ -158,9 +158,9 @@ export async function askChina(_: AskState, form: FormData): Promise<AskState> {
       admin.from("ai_usage").update({ model: result.model, input_tokens: result.usage.inputTokens, output_tokens: result.usage.outputTokens, total_tokens: result.usage.totalTokens }).eq("id", reservation.id),
       admin.from("ai_conversations").update({ updated_at: new Date().toISOString() }).eq("id", conversationId),
     ]);
-    revalidatePath("/desk/app/ask");
+    revalidatePath("/meridian/app/ask");
     revalidatePath("/admin/intelligence");
-    return { message: review ? "China Desk is reviewing this response." : "Answer ready.", success: true, conversationId };
+    return { message: review ? "Meridian is reviewing this response." : "Answer ready.", success: true, conversationId };
   } catch {
     await admin.from("ai_usage").update({ model: "failed" }).eq("id", reservation.id);
     await admin.from("ai_messages").insert({
@@ -168,12 +168,12 @@ export async function askChina(_: AskState, form: FormData): Promise<AskState> {
       organization_id: organizationId,
       user_id: context.user.id,
       role: "ASSISTANT",
-      content: "China Desk could not prepare a reliable answer. No unsupported response has been published.",
+      content: "Meridian could not prepare a reliable answer. No unsupported response has been published.",
       status: "PUBLISHED",
       confidence: "LOW",
       published_at: new Date().toISOString(),
     });
-    return { message: "China Desk could not prepare a reliable answer. Try again or create a research request.", conversationId };
+    return { message: "Meridian could not prepare a reliable answer. Try again or create a research request.", conversationId };
   }
 }
 
@@ -189,16 +189,16 @@ export async function createAskChinaRequest(form: FormData) {
   const { data, error } = await supabase.from("requests").insert({
     organization_id: context.organization.id,
     title,
-    description: `Created from Ask China.\n\nQuestion: ${question}`,
+    description: `Created from Ask Meridian.\n\nQuestion: ${question}`,
     request_type: requestType,
     priority: "MEDIUM",
     status: "SUBMITTED",
     created_by: context.user.id,
   }).select("id").single();
   if (error || !data) throw new Error("The request could not be created.");
-  await supabase.from("activity").insert({ organization_id: context.organization.id, actor_id: context.user.id, action: `${localExecution ? "China-side action" : "Research request"} created from Ask China: ${title}`, entity_type: "request", entity_id: data.id });
-  revalidatePath("/desk/app/requests");
-  revalidatePath("/desk/app/ask");
+  await supabase.from("activity").insert({ organization_id: context.organization.id, actor_id: context.user.id, action: `${localExecution ? "China-side action" : "Research request"} created from Ask Meridian: ${title}`, entity_type: "request", entity_id: data.id });
+  revalidatePath("/meridian/app/requests");
+  revalidatePath("/meridian/app/ask");
 }
 
 export async function renameConversation(form: FormData) {
@@ -206,7 +206,7 @@ export async function renameConversation(form: FormData) {
   if (!context.organization) return;
   const supabase = await createClient();
   await supabase.from("ai_conversations").update({ title: value(form, "title").slice(0, 100) }).eq("id", value(form, "id")).eq("user_id", context.user.id).eq("organization_id", context.organization.id);
-  revalidatePath("/desk/app/ask");
+  revalidatePath("/meridian/app/ask");
 }
 
 export async function archiveConversation(form: FormData) {
@@ -214,7 +214,7 @@ export async function archiveConversation(form: FormData) {
   if (!context.organization) return;
   const supabase = await createClient();
   await supabase.from("ai_conversations").update({ status: "ARCHIVED" }).eq("id", value(form, "id")).eq("user_id", context.user.id).eq("organization_id", context.organization.id);
-  revalidatePath("/desk/app/ask");
+  revalidatePath("/meridian/app/ask");
 }
 
 export async function deleteConversation(form: FormData) {
@@ -222,5 +222,5 @@ export async function deleteConversation(form: FormData) {
   if (!context.organization) return;
   const supabase = await createClient();
   await supabase.from("ai_conversations").delete().eq("id", value(form, "id")).eq("user_id", context.user.id).eq("organization_id", context.organization.id);
-  revalidatePath("/desk/app/ask");
+  revalidatePath("/meridian/app/ask");
 }

@@ -17,7 +17,7 @@ export async function createRequest(_: RequestState, formData: FormData): Promis
   const { data, error } = await supabase.from("requests").insert({ organization_id: context.organization.id, title, description, request_type: requestType, priority, status: "SUBMITTED", created_by: context.user.id }).select("id").single();
   if (error) return { message: "Your request could not be submitted. Please try again." };
   await supabase.from("activity").insert({ organization_id: context.organization.id, actor_id: context.user.id, action: `Request submitted: ${title}`, entity_type: "request", entity_id: data.id });
-  revalidatePath("/desk/app");
-  revalidatePath("/desk/app/requests");
+  revalidatePath("/meridian/app");
+  revalidatePath("/meridian/app/requests");
   return { message: "Request submitted. Yifan will review it from the admin workspace.", success: true };
 }

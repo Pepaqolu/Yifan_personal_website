@@ -33,7 +33,7 @@ export default function DeskPage() {
               </Reveal>
               <Reveal delay={0.08} className="flex flex-col items-start gap-5 md:col-span-3 md:col-start-10 md:self-end">
                 <AnalyticsLink eventName="Private access clicked" eventLocation="desk-hero" href={desk.access.href} className="group inline-flex items-center gap-3 text-sm font-medium sm:text-base"><span className="border-b border-ink/25 pb-1">Request private access</span><span className="text-accent transition-transform group-hover:translate-x-1">→</span></AnalyticsLink>
-                <AnalyticsLink eventName="Dashboard demo viewed" eventLocation="desk-hero" href="/desk/demo" className="text-sm text-stone hover:text-accent">Explore the dashboard ↓</AnalyticsLink>
+                <AnalyticsLink eventName="Dashboard demo viewed" eventLocation="desk-hero" href="/meridian/demo" className="text-sm text-stone hover:text-accent">Explore the dashboard ↓</AnalyticsLink>
               </Reveal>
             </div>
           </div>
@@ -89,7 +89,7 @@ export default function DeskPage() {
             </div>
             <Reveal className="mt-32 sm:mt-48">
               {desk.compounding.close.map((line, index) => <p key={line} className={`text-[clamp(2.6rem,5.5vw,5.5rem)] font-medium leading-[0.95] tracking-[-0.065em] ${index ? "text-accent" : "text-stone"}`}>{line}</p>)}
-              <AnalyticsLink eventName="Dashboard demo viewed" eventLocation="desk-body" href="/desk/demo" className="group mt-20 inline-flex items-center gap-4 text-base font-medium sm:mt-28 sm:text-lg"><span className="border-b border-ink/25 pb-1.5 group-hover:border-accent">Explore the dashboard demo</span><span className="text-accent transition-transform group-hover:translate-x-1">→</span></AnalyticsLink>
+              <AnalyticsLink eventName="Dashboard demo viewed" eventLocation="desk-body" href="/meridian/demo" className="group mt-20 inline-flex items-center gap-4 text-base font-medium sm:mt-28 sm:text-lg"><span className="border-b border-ink/25 pb-1.5 group-hover:border-accent">Explore the dashboard demo</span><span className="text-accent transition-transform group-hover:translate-x-1">→</span></AnalyticsLink>
             </Reveal>
           </div>
         </section>

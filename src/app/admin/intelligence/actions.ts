@@ -130,12 +130,12 @@ export async function publishIntelligenceDraft(form: FormData) {
   if (publishError) throw new Error(publishError.message);
   await supabase.from("activity").insert({ organization_id: draft.organization_id, actor_id: context.user.id, action: `${String(draft.feature).replaceAll("_", " ")} AI draft reviewed and published`, entity_type: "ai_draft", entity_id: id });
   revalidatePath("/admin/intelligence");
-  revalidatePath("/desk/app");
-  revalidatePath("/desk/app/ask");
-  revalidatePath("/desk/app/research");
-  revalidatePath("/desk/app/market");
-  revalidatePath("/desk/app/competitors");
-  revalidatePath("/desk/app/partners");
+  revalidatePath("/meridian/app");
+  revalidatePath("/meridian/app/ask");
+  revalidatePath("/meridian/app/research");
+  revalidatePath("/meridian/app/market");
+  revalidatePath("/meridian/app/competitors");
+  revalidatePath("/meridian/app/partners");
 }
 
 export async function discardIntelligenceDraft(form: FormData) {
@@ -145,11 +145,11 @@ export async function discardIntelligenceDraft(form: FormData) {
   const { data: draft } = await supabase.from("ai_drafts").select("feature,entity_id").eq("id", id).eq("status", "DRAFT").single();
   if (!draft) throw new Error("Draft not found.");
   if (draft.feature === "ASK_CHINA" && draft.entity_id) {
-    await supabase.from("ai_messages").update({ content: "China Desk could not publish a sufficiently reliable answer. Create a research request to close this gap.", answer: null, confidence: "LOW", status: "PUBLISHED", reviewed_by: context.user.id, published_at: new Date().toISOString() }).eq("id", draft.entity_id);
+    await supabase.from("ai_messages").update({ content: "Meridian could not publish a sufficiently reliable answer. Create a research request to close this gap.", answer: null, confidence: "LOW", status: "PUBLISHED", reviewed_by: context.user.id, published_at: new Date().toISOString() }).eq("id", draft.entity_id);
   }
   await supabase.from("ai_drafts").update({ status: "DISCARDED", reviewed_by: context.user.id, reviewed_at: new Date().toISOString() }).eq("id", id);
   revalidatePath("/admin/intelligence");
-  revalidatePath("/desk/app/ask");
+  revalidatePath("/meridian/app/ask");
 }
 
 export async function setAIResponseMode(form: FormData) {

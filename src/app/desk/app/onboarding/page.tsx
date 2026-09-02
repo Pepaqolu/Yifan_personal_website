@@ -15,8 +15,8 @@ export default function OnboardingPage() {
   return (
     <main className="mx-auto max-w-5xl py-8 sm:py-16">
       <p className="eyebrow text-accent">FIRST CONTEXT</p>
-      <h1 className="mt-8 max-w-[11ch] text-[clamp(3.5rem,8vw,7.5rem)] font-medium leading-[0.88] tracking-[-0.07em]">Help China Desk understand your company.</h1>
-      <p className="mt-8 max-w-xl leading-7 text-stone">Answer what you can. This becomes private organization knowledge and improves every future Ask China response.</p>
+      <h1 className="mt-8 max-w-[11ch] text-[clamp(3.5rem,8vw,7.5rem)] font-medium leading-[0.88] tracking-[-0.07em]">Help Meridian understand your company.</h1>
+      <p className="mt-8 max-w-xl leading-7 text-stone">Answer what you can. This becomes private organization knowledge and improves every future Ask Meridian response.</p>
       <form action={completeOnboarding} className="mt-20 border-t border-line">
         {prompts.map(([name, question, hint], index) => (
           <label key={name} className="grid gap-5 border-b border-line py-9 md:grid-cols-12">

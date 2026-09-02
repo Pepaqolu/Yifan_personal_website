@@ -116,7 +116,7 @@ export default async function IntelligencePage() {
     supabase.from("ai_usage").select("total_tokens"),
     supabase.from("ai_messages").select("id,content,created_at,organizations(name)").eq("role", "USER").order("created_at", { ascending: false }).limit(100),
     supabase.from("ai_messages").select("id,content,created_at,organizations(name)").eq("role", "ASSISTANT").eq("confidence", "LOW").order("created_at", { ascending: false }).limit(8),
-    supabase.from("requests").select("id,title,status,created_at,organizations(name)").ilike("description", "Created from Ask China.%").order("created_at", { ascending: false }).limit(8),
+    supabase.from("requests").select("id,title,status,created_at,organizations(name)").or("description.ilike.Created from Ask Meridian.%,description.ilike.Created from Ask China.%").order("created_at", { ascending: false }).limit(8),
   ]);
   if (draftsResult.error) throw new Error(draftsResult.error.message);
   const drafts = (draftsResult.data || []) as Draft[];
@@ -125,7 +125,7 @@ export default async function IntelligencePage() {
   const tokens = (usageResult.data || []).reduce((sum, item) => sum + Number(item.total_tokens || 0), 0);
 
   return <>
-    <PageHeader eyebrow="INTELLIGENCE" title="Human judgment, kept in the loop." description="Review client answers and turn source material into publishable China Desk intelligence." />
+    <PageHeader eyebrow="INTELLIGENCE" title="Human judgment, kept in the loop." description="Review client answers and turn source material into publishable Meridian intelligence." />
     <div className="grid border-y border-line sm:grid-cols-2 xl:grid-cols-4">
       {[["QUESTIONS", questionsResult.count || 0], ["AWAITING REVIEW", drafts.length], ["LOW CONFIDENCE", lowConfidenceResult.count || 0], ["TOKENS USED", tokens]].map(([label, value]) => <div key={label} className="border-b border-line py-7 sm:px-5 sm:first:pl-0 xl:border-b-0 xl:border-r xl:last:border-r-0"><p className="eyebrow text-stone">{label}</p><p className="mt-5 text-4xl font-medium tracking-[-0.06em]">{Number(value).toLocaleString()}</p></div>)}
     </div>
@@ -150,7 +150,7 @@ export default async function IntelligencePage() {
       </div>
     </section>
     <section className="mt-24">
-      <p className="eyebrow text-stone">ASK CHINA HANDOFFS</p>
+      <p className="eyebrow text-stone">ASK MERIDIAN HANDOFFS</p>
       <div className="mt-5 border-t border-line">{(handoffsResult.data || []).map((item) => { const orgValue = item.organizations as { name: string } | { name: string }[] | null; const org = Array.isArray(orgValue) ? orgValue[0] : orgValue; return <article key={item.id} className="grid gap-2 border-b border-line py-5 sm:grid-cols-12"><p className="sm:col-span-7">{item.title}</p><p className="text-xs text-stone sm:col-span-3">{org?.name || "Client"}</p><div className="sm:col-span-2"><Status>{item.status}</Status></div></article>; })}</div>
     </section>
   </>;

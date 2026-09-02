@@ -13,7 +13,7 @@ export function EmptyState({ title, description }: { title: string; description:
   return <section className="rounded-2xl border border-line bg-elevated px-6 py-14 sm:px-8"><p className="eyebrow text-stone">EMPTY</p><p className="mt-5 text-2xl font-medium tracking-[-0.04em]">{title}</p><p className="mt-3 max-w-lg text-sm leading-6 text-stone">{description}</p></section>;
 }
 
-export function ErrorState({ message = "China Desk could not load this workspace. Try again, or contact Yifan if the issue continues." }: { message?: string }) {
+export function ErrorState({ message = "Meridian could not load this workspace. Try again, or contact Yifan if the issue continues." }: { message?: string }) {
   return <div role="alert" className="border-l border-accent pl-5 text-sm leading-6 text-stone">{message}</div>;
 }
 

@@ -25,5 +25,5 @@ export async function saveCompanyContext(form: FormData) {
   const supabase = await createClient();
   const { error } = await supabase.rpc("save_company_context", { answers });
   if (error) throw new Error("Company context could not be saved.");
-  revalidatePath("/desk/app/knowledge");
+  revalidatePath("/meridian/app/knowledge");
 }

@@ -93,13 +93,13 @@ export default async function AskChinaPage({ searchParams }: { searchParams: Pro
 
   return (
     <>
-      <PageHeader eyebrow="ASK CHINA" title={selected ? selected.title : "Ask your China Desk anything."} description="Answers grounded in your company context, accumulated research, partners, competitors, and market record." action={selected ? <Link href="/desk/app/ask" className="text-xs text-stone">New conversation →</Link> : undefined} />
+      <PageHeader eyebrow="ASK MERIDIAN" title={selected ? selected.title : "Ask your Meridian anything."} description="Answers grounded in your company context, accumulated research, partners, competitors, and market record." action={selected ? <Link href="/meridian/app/ask" className="text-xs text-stone">New conversation →</Link> : undefined} />
       <div className="grid gap-16 xl:grid-cols-12">
         <aside className="xl:col-span-3">
           <p className="eyebrow text-stone">RECENT CONVERSATIONS</p>
           <div className="mt-5 border-t border-line">
             {(conversations || []).length ? conversations?.map((conversation) => (
-              <Link key={conversation.id} href={`/desk/app/ask?conversation=${conversation.id}`} className={`block border-b border-line py-4 text-sm ${conversation.id === selectedId ? "font-medium" : "text-stone"}`}>
+              <Link key={conversation.id} href={`/meridian/app/ask?conversation=${conversation.id}`} className={`block border-b border-line py-4 text-sm ${conversation.id === selectedId ? "font-medium" : "text-stone"}`}>
                 {conversation.title}<span className="mt-1 block text-[0.65rem] font-normal text-stone">{formatDate(conversation.updated_at)}</span>
               </Link>
             )) : <p className="py-5 text-sm text-stone">Your questions will gather here.</p>}
@@ -118,7 +118,7 @@ export default async function AskChinaPage({ searchParams }: { searchParams: Pro
                   const previousQuestion = [...messages.slice(0, index)].reverse().find((item) => item.role === "USER")?.content || "";
                   return <article key={message.id} className={message.role === "USER" ? "border-l border-line pl-5" : ""}><p className="eyebrow text-stone">{message.role === "USER" ? "YOU" : `CHINA DESK · ${message.confidence || "LOW"} CONFIDENCE`}</p><div className="mt-5">{message.role === "ASSISTANT" ? <Answer message={message} question={previousQuestion} /> : <p className="text-xl leading-8">{message.content}</p>}</div></article>;
                 })}
-                {messages.at(-1)?.role === "USER" ? <p className="border-t border-line pt-6 text-sm text-stone">China Desk is reviewing this response.</p> : null}
+                {messages.at(-1)?.role === "USER" ? <p className="border-t border-line pt-6 text-sm text-stone">Meridian is reviewing this response.</p> : null}
               </div>
               <div className="mt-20 border-t border-line pt-8"><AskForm conversationId={selected.id} /></div>
             </>

@@ -70,7 +70,7 @@ export async function retrieveOrganizationEvidence(organizationId: string, quest
   const errors = [organization, knowledge, research, market, competitors, partners, requests, activity]
     .map((result) => result.error)
     .filter(Boolean);
-  if (errors.length) throw new Error("China Desk could not retrieve the authorized client context.");
+  if (errors.length) throw new Error("Meridian could not retrieve the authorized client context.");
 
   const items: EvidenceItem[] = [];
   if (organization.data) {

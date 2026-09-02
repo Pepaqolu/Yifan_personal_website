@@ -3,13 +3,13 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
-  const next = request.nextUrl.searchParams.get("next") || "/desk/app";
+  const next = request.nextUrl.searchParams.get("next") || "/meridian/app";
   if (code) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      return NextResponse.redirect(new URL(next.startsWith("/") ? next : "/desk/app", request.url));
+      return NextResponse.redirect(new URL(next.startsWith("/") ? next : "/meridian/app", request.url));
     }
   }
-  return NextResponse.redirect(new URL("/desk/login?error=callback", request.url));
+  return NextResponse.redirect(new URL("/meridian/login?error=callback", request.url));
 }

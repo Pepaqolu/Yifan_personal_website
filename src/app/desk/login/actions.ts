@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getTrustedSiteUrl, isSupabaseConfigured } from "@/lib/supabase/config";
+import { productConfig } from "@/config/productConfig";
 
 export type AuthState = { message: string; success?: boolean };
 
@@ -31,12 +32,12 @@ async function destinationForUser(
     ? membership.organizations[0]
     : membership?.organizations;
   return organization?.onboarding_completed_at || organization?.onboarding_skipped_at
-    ? "/desk/app"
-    : "/desk/app/onboarding";
+    ? "/meridian/app"
+    : "/meridian/app/onboarding";
 }
 
 export async function signIn(_: AuthState, formData: FormData): Promise<AuthState> {
-  if (!isSupabaseConfigured()) return { message: "China Desk authentication has not been configured yet." };
+  if (!isSupabaseConfigured()) return { message: `${productConfig.name} authentication has not been configured yet.` };
   const email = value(formData, "email");
   const password = value(formData, "password");
   if (!email || !password) return { message: "Enter your email and password." };
@@ -48,12 +49,12 @@ export async function signIn(_: AuthState, formData: FormData): Promise<AuthStat
 }
 
 export async function requestPasswordReset(_: AuthState, formData: FormData): Promise<AuthState> {
-  if (!isSupabaseConfigured()) return { message: "China Desk authentication has not been configured yet." };
+  if (!isSupabaseConfigured()) return { message: `${productConfig.name} authentication has not been configured yet.` };
   const email = value(formData, "email");
   if (!email) return { message: "Enter the email associated with your invitation." };
   const supabase = await createClient();
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${getTrustedSiteUrl()}/auth/callback?next=/desk/login/update-password`,
+    redirectTo: `${getTrustedSiteUrl()}/auth/callback?next=/meridian/login/update-password`,
   });
   if (error) return { message: "We could not send a reset email. Please contact Yifan." };
   return { message: "If an invited account exists, a reset link is on its way.", success: true };
@@ -73,5 +74,5 @@ export async function signOut() {
     const supabase = await createClient();
     await supabase.auth.signOut();
   }
-  redirect("/desk/login");
+  redirect("/meridian/login");
 }

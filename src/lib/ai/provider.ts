@@ -35,7 +35,7 @@ function outputText(payload: Record<string, unknown>) {
 class OpenAIProvider implements AIProvider {
   private async structured<T>(name: string, instructions: string, input: string): Promise<AIResult<T>> {
     const key = process.env.OPENAI_API_KEY;
-    if (!key) throw new Error("Ask China is not configured yet.");
+    if (!key) throw new Error("Ask Meridian is not configured yet.");
     if (input.length > MAX_PROVIDER_INPUT) throw new Error("The intelligence context exceeded the safe prompt limit.");
 
     const model = configuredModel();
@@ -70,7 +70,7 @@ class OpenAIProvider implements AIProvider {
   generateAnswer({ question, evidence, history }: Parameters<AIProvider["generateAnswer"]>[0]) {
     return this.structured<AskChinaAnswer>(
       "ask_china_answer",
-      `You are China Desk, an evidence-led China market intelligence assistant. Use ONLY the supplied client evidence and conversation history. Never add facts from memory. Separate stored facts from assessment. If evidence is weak, say so and use LOW confidence. sourceKeys must contain only supplied evidence keys. Mark work requiring outreach, WeChat, factory contact, qualification, verification, regulatory confirmation, negotiation, inspection, or live local checks as requiresLocalExecution. Return JSON with: answer (string), whatWeKnow (string[]), assessment (string[]), missingInformation (string[]), sourceKeys (string[]), confidence (HIGH|MEDIUM|LOW), requiresLocalExecution (boolean), localExecutionReason (string), suggestedRequestTitle (string), suggestedRequestType (one of Research a company|Find partners|Find suppliers|Check a competitor|Validate an assumption|Market question|Contact someone|Other).`,
+      `You are Meridian, an evidence-led China market intelligence assistant. Use ONLY the supplied client evidence and conversation history. Never add facts from memory. Separate stored facts from assessment. If evidence is weak, say so and use LOW confidence. sourceKeys must contain only supplied evidence keys. Mark work requiring outreach, WeChat, factory contact, qualification, verification, regulatory confirmation, negotiation, inspection, or live local checks as requiresLocalExecution. Return JSON with: answer (string), whatWeKnow (string[]), assessment (string[]), missingInformation (string[]), sourceKeys (string[]), confidence (HIGH|MEDIUM|LOW), requiresLocalExecution (boolean), localExecutionReason (string), suggestedRequestTitle (string), suggestedRequestType (one of Research a company|Find partners|Find suppliers|Check a competitor|Validate an assumption|Market question|Contact someone|Other).`,
       JSON.stringify({ question, evidence, recentConversation: history }),
     );
   }

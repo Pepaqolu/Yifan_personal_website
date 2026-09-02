@@ -37,10 +37,12 @@ export async function getActivity(organizationId: string, limit = 8) {
 
 export async function getOverview(organizationId: string) {
   const supabase = await createClient();
-  const [market, competitors, competitorUpdates, identified, qualified, interested, researchCompleted, researchActive, requestsOpen, activity] = await Promise.all([
+  const [market, competitors, competitorUpdates, opportunities, priorityOpportunities, identified, qualified, interested, researchCompleted, researchActive, requestsOpen, activity] = await Promise.all([
     supabase.from("market_updates").select("id", { count: "exact", head: true }).eq("organization_id", organizationId),
     supabase.from("competitors").select("id", { count: "exact", head: true }).eq("organization_id", organizationId),
     supabase.from("competitors").select("id", { count: "exact", head: true }).eq("organization_id", organizationId).gte("updated_at", new Date(Date.now() - 30 * 86400000).toISOString()),
+    supabase.from("partners").select("id", { count: "exact", head: true }).eq("organization_id", organizationId),
+    supabase.from("partners").select("id", { count: "exact", head: true }).eq("organization_id", organizationId).in("status", ["QUALIFIED", "CONTACTED", "INTERESTED", "ACTIVE"]),
     supabase.from("partners").select("id", { count: "exact", head: true }).eq("organization_id", organizationId).eq("status", "IDENTIFIED"),
     supabase.from("partners").select("id", { count: "exact", head: true }).eq("organization_id", organizationId).eq("status", "QUALIFIED"),
     supabase.from("partners").select("id", { count: "exact", head: true }).eq("organization_id", organizationId).eq("status", "INTERESTED"),
@@ -49,7 +51,7 @@ export async function getOverview(organizationId: string) {
     supabase.from("requests").select("id", { count: "exact", head: true }).eq("organization_id", organizationId).not("status", "in", "(COMPLETED,CANCELLED)"),
     getActivity(organizationId),
   ]);
-  return { metrics: { market: market.count ?? 0, competitors: competitors.count ?? 0, competitorUpdates: competitorUpdates.count ?? 0, identified: identified.count ?? 0, qualified: qualified.count ?? 0, interested: interested.count ?? 0, researchCompleted: researchCompleted.count ?? 0, researchActive: researchActive.count ?? 0, requestsOpen: requestsOpen.count ?? 0 }, activity };
+  return { metrics: { market: market.count ?? 0, competitors: competitors.count ?? 0, competitorUpdates: competitorUpdates.count ?? 0, opportunities: opportunities.count ?? 0, priorityOpportunities: priorityOpportunities.count ?? 0, identified: identified.count ?? 0, qualified: qualified.count ?? 0, interested: interested.count ?? 0, researchCompleted: researchCompleted.count ?? 0, researchActive: researchActive.count ?? 0, requestsOpen: requestsOpen.count ?? 0 }, activity };
 }
 
 export async function getOrganizations() {

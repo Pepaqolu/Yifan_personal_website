@@ -1,10 +1,9 @@
 export default function Loading() {
   return (
-    <div aria-live="polite" className="animate-pulse">
-      <div className="h-3 w-24 bg-ink/10" />
-      <div className="mt-8 h-20 max-w-2xl bg-ink/[0.06]" />
-      <div className="mt-16 h-px bg-line" />
-      <div className="mt-8 h-48 bg-ink/[0.04]" />
+    <div aria-live="polite" aria-label="Loading Meridian administration" className="animate-pulse">
+      <div className="h-2.5 w-24 rounded-full bg-accent/20" />
+      <div className="mt-8 h-20 max-w-2xl rounded-2xl bg-ink/[0.07]" />
+      <div className="mt-16 grid gap-4 sm:grid-cols-4">{[0,1,2,3].map((item)=><div key={item} className="h-36 rounded-2xl border border-line bg-elevated" />)}</div>
     </div>
   );
 }

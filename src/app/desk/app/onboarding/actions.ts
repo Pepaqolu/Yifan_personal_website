@@ -26,7 +26,7 @@ export async function completeOnboarding(form: FormData) {
   const supabase = await createClient();
   const { error } = await supabase.rpc("save_client_onboarding", { answers, skip_onboarding: false });
   if (error) throw new Error("Your company context could not be saved.");
-  redirect("/desk/app");
+  redirect("/meridian/app");
 }
 
 export async function skipOnboarding() {
@@ -35,5 +35,5 @@ export async function skipOnboarding() {
   const supabase = await createClient();
   const { error } = await supabase.rpc("save_client_onboarding", { answers: [], skip_onboarding: true });
   if (error) throw new Error("Onboarding could not be skipped.");
-  redirect("/desk/app");
+  redirect("/meridian/app");
 }

@@ -4,14 +4,15 @@ import Link from "next/link";
 import { track } from "@vercel/analytics";
 import { FormEvent, useEffect, useState } from "react";
 import { chinaDeskDemo as demo, type Competitor, type PartnerStatus } from "@/data/china-desk-demo";
+import { productConfig } from "@/config/productConfig";
 import { AnalyticsLink } from "./analytics-link";
 
-const navItems = ["Overview", "Market Pulse", "Competitors", "Partners", "Research", "Requests", "Knowledge"] as const;
+const navItems = ["Overview", "Opportunity Map", "Competitors", "Partners", "Signals", "Pipeline", "Research", "Requests", "Knowledge"] as const;
 type View = (typeof navItems)[number];
 const navGroups: Array<{ label?: string; items: View[] }> = [
   { items: ["Overview"] },
-  { label: "INTELLIGENCE", items: ["Market Pulse", "Competitors", "Partners"] },
-  { label: "WORK", items: ["Research", "Requests"] },
+  { label: "DISCOVER", items: ["Opportunity Map", "Competitors", "Partners", "Signals"] },
+  { label: "WORK", items: ["Pipeline", "Research", "Requests"] },
   { label: "CONTEXT", items: ["Knowledge"] },
 ];
 
@@ -29,25 +30,25 @@ function SectionHeading({ label, title, description }: { label: string; title: s
   );
 }
 
-function AskChina() {
+function AskMeridian() {
   const [question, setQuestion] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const submit = (event: FormEvent) => { event.preventDefault(); if (question.trim()) setSubmitted(true); };
 
   return (
     <section className="mt-16 border-t border-line pt-10">
-      <p className="eyebrow text-stone">ASK CHINA</p>
+      <p className="eyebrow text-stone">ASK {productConfig.shortName.toUpperCase()}</p>
       <form onSubmit={submit} className="mt-6 rounded-[20px] border border-line bg-elevated p-5 shadow-[var(--shadow-elevated)] sm:p-7">
-        <label htmlFor="ask-china" className="sr-only">Ask your China Desk anything</label>
+        <label htmlFor="ask-china" className="sr-only">Ask {productConfig.shortName} about your China market</label>
         <div className="flex items-end gap-4">
-          <textarea id="ask-china" value={question} onChange={(event) => { setQuestion(event.target.value); setSubmitted(false); }} rows={2} placeholder="Ask your China Desk anything..." className="command-input min-w-0 flex-1 resize-none text-[clamp(1.6rem,3vw,3rem)] font-medium leading-[1.1] tracking-[-0.05em] outline-none placeholder:text-stone/45" />
+          <textarea id="ask-china" value={question} onChange={(event) => { setQuestion(event.target.value); setSubmitted(false); }} rows={2} placeholder={`Ask ${productConfig.shortName} about your China market...`} className="command-input min-w-0 flex-1 resize-none text-[clamp(1.6rem,3vw,3rem)] font-medium leading-[1.1] tracking-[-0.05em] outline-none placeholder:text-stone/45" />
           <button type="submit" className="shrink-0 rounded-[10px] bg-accent px-4 py-2.5 text-sm font-medium text-[#071018] transition-colors hover:bg-ice-bright">Ask →</button>
         </div>
       </form>
       {submitted ? (
         <div className="mt-8 max-w-xl border-l border-accent pl-5">
-          <p className="font-medium">China Desk AI is currently in private development.</p>
-          <AnalyticsLink eventName="Email clicked" eventLocation="desk-demo-question" href={`mailto:yifanevanfu@gmail.com?subject=China%20Desk%20Question&body=${encodeURIComponent(question)}`} className="mt-3 inline-block text-sm text-stone hover:text-accent">Send this question to Yifan →</AnalyticsLink>
+          <p className="font-medium">{productConfig.shortName} intelligence is currently in private beta.</p>
+          <AnalyticsLink eventName="email_clicked" eventLocation="meridian-demo-question" href={`mailto:${productConfig.email}?subject=${encodeURIComponent(`${productConfig.shortName} question`)}&body=${encodeURIComponent(question)}`} className="mt-3 inline-block text-sm text-stone hover:text-accent">Send this question to Yifan →</AnalyticsLink>
         </div>
       ) : (
         <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3">
@@ -61,19 +62,20 @@ function AskChina() {
 function Overview() {
   return (
     <>
-      <SectionHeading label="OVERVIEW" title="Good morning." description={`${demo.client.name} · ${demo.client.desk}`} />
-      <div className="grid overflow-hidden rounded-2xl border border-line bg-elevated sm:grid-cols-2 xl:grid-cols-5">
+      <SectionHeading label={`${productConfig.shortName.toUpperCase()} · CHINA OPPORTUNITY MAP`} title={demo.client.name} description={demo.client.desk} />
+      <div className="grid overflow-hidden rounded-2xl border border-line bg-elevated sm:grid-cols-2 lg:grid-cols-5">
         {demo.metrics.map((metric) => (
-          <div key={metric.label} className="border-b border-line p-6 sm:border-r xl:border-b-0 xl:last:border-r-0">
+          <div key={metric.label} className="border-b border-line p-6 sm:border-r lg:border-b-0 lg:last:border-r-0">
             <p className="eyebrow text-stone">{metric.label}</p>
             <p className="mt-6 text-4xl font-medium tracking-[-0.065em]">{metric.value}</p>
             <p className="mt-3 max-w-[18rem] text-xs leading-[1.5] text-stone">{metric.detail}</p>
           </div>
         ))}
       </div>
-      <AskChina />
+      <OpportunityMap compact />
+      <AskMeridian />
       <section className="mt-20">
-        <div className="flex items-end justify-between border-b border-line pb-5"><h2 className="text-2xl font-medium tracking-[-0.045em]">Latest market pulse</h2><span className="text-xs text-stone">3 developments</span></div>
+        <div className="flex items-end justify-between border-b border-line pb-5"><h2 className="text-2xl font-medium tracking-[-0.045em]">Latest market signals</h2><span className="text-xs text-stone">3 developments</span></div>
         {demo.marketUpdates.map((update) => <MarketUpdateRow key={update.headline} update={update} />)}
       </section>
     </>
@@ -91,7 +93,7 @@ function MarketUpdateRow({ update }: { update: (typeof demo.marketUpdates)[numbe
 }
 
 function MarketPulse() {
-  return <><SectionHeading label="MARKET PULSE" title="What changed." description="A focused feed of developments relevant to this demo market context." />{demo.marketUpdates.map((update) => <MarketUpdateRow key={update.headline} update={update} />)}</>;
+  return <><SectionHeading label="MARKET SIGNALS" title="What changed." description="A focused feed of commercial developments relevant to this demo market context." />{demo.marketUpdates.map((update) => <MarketUpdateRow key={update.headline} update={update} />)}</>;
 }
 
 function Competitors({ onSelect }: { onSelect: (competitor: Competitor) => void }) {
@@ -105,11 +107,19 @@ function Competitors({ onSelect }: { onSelect: (competitor: Competitor) => void 
   );
 }
 
+function OpportunityMap({ compact = false }: { compact?: boolean }) {
+  return <section className={compact ? "mt-16" : ""}><SectionHeading label="OPPORTUNITY MAP" title={compact ? "Highest-fit companies." : "37 opportunities found."} description={`Demo opportunities are ranked through an explainable ${productConfig.shortName} assessment—not a scientifically validated score.`} /><div className="border-t border-line">{demo.partners.map((partner)=><button key={partner.company} onClick={()=>track("opportunity_viewed",{company:partner.company})} className="grid w-full gap-4 border-b border-line py-6 text-left transition-colors hover:bg-white/[0.02] sm:grid-cols-12 sm:items-center sm:px-4"><div className="sm:col-span-4"><h3 className="text-lg font-medium">{partner.company}</h3><p className="mt-1 text-xs text-stone">{partner.chineseName} · {partner.location}</p></div><p className="text-sm text-charcoal sm:col-span-2">{partner.type}</p><p className="text-sm leading-6 text-charcoal sm:col-span-4">{partner.why}</p><div className="sm:col-span-2 sm:text-right"><span className="text-3xl font-medium tracking-[-0.06em] text-accent">{partner.score}</span><span className="ml-2 font-mono text-[0.55rem] uppercase text-stone">fit</span></div></button>)}</div></section>;
+}
+
 function Partners() {
-  const statuses: PartnerStatus[] = ["Identified", "Qualified", "Contacted", "Interested", "Active"];
+  return <><SectionHeading label="OPPORTUNITIES" title="Find the right companies." description="Potential customers, distributors, suppliers and partners with the evidence and next action attached." /><div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{demo.partners.map((partner)=><article key={partner.company} className="rounded-2xl border border-line bg-elevated p-6"><div className="flex items-start justify-between gap-4"><div><h3 className="text-xl font-medium">{partner.company}</h3><p className="mt-1 text-xs text-stone">{partner.chineseName} · {partner.location}</p></div><p className="text-3xl font-medium tracking-[-0.06em] text-accent">{partner.score}</p></div><p className="mt-6 text-sm leading-6 text-charcoal">{partner.why}</p><div className="mt-6 border-t border-line pt-5"><p className="eyebrow text-stone">RECOMMENDED NEXT ACTION</p><p className="mt-3 text-sm leading-6">{partner.nextAction}</p></div></article>)}</div></>;
+}
+
+function Pipeline() {
+  const statuses: PartnerStatus[] = ["Discovered", "Qualified", "Contacted", "Replied", "Interested", "Negotiating", "Active", "Not a fit"];
   return (
-    <><SectionHeading label="PARTNER RADAR" title="Relationships, organized." description="An illustrative China-market relationship workspace rather than a generic sales pipeline." />
-      <div className="grid gap-10 lg:grid-cols-5 lg:gap-4">
+    <><SectionHeading label="PIPELINE" title="From discovery to deal." description={`${productConfig.shortName} finds the opportunity. You control the relationship.`} />
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {statuses.map((status) => <section key={status} className="rounded-2xl border border-line bg-elevated p-4"><div className="flex justify-between border-b border-line pb-3"><h2 className="text-sm font-medium">{status}</h2><span className="text-xs text-stone">{demo.partners.filter((partner) => partner.status === status).length}</span></div>{demo.partners.filter((partner) => partner.status === status).map((partner) => <article key={partner.company} className="border-b border-line py-5 last:border-0"><h3 className="font-medium tracking-[-0.025em]">{partner.company}</h3><p className="mt-2 text-xs text-stone">{partner.type} · {partner.location}</p><p className="mt-4 text-xs leading-[1.55] text-charcoal">{partner.notes}</p><p className="mt-3 font-mono text-[0.56rem] uppercase tracking-[0.08em] text-stone">{partner.contact}</p></article>)}</section>)}
       </div>
     </>
@@ -125,7 +135,7 @@ function Requests({ onRequest }: { onRequest: (type: string) => void }) {
 }
 
 function Knowledge() {
-  return <><SectionHeading label="KNOWLEDGE" title="Context that compounds." description="A visual representation of the institutional knowledge a long-running China Desk can accumulate." /><div className="grid border-t border-line md:grid-cols-2">{demo.knowledge.map((area) => <section key={area.title} className="border-b border-line py-8 md:px-8 md:odd:border-r md:odd:pl-0"><p className="eyebrow text-stone">{area.title}</p><p className="mt-6 text-lg leading-[1.55] tracking-[-0.03em]">{area.items.map((item) => <span key={item} className="block">{item}</span>)}</p></section>)}</div></>;
+  return <><SectionHeading label="KNOWLEDGE" title="Context that compounds." description={`A visual representation of the institutional knowledge ${productConfig.shortName} can accumulate.`} /><div className="grid border-t border-line md:grid-cols-2">{demo.knowledge.map((area) => <section key={area.title} className="border-b border-line py-8 md:px-8 md:odd:border-r md:odd:pl-0"><p className="eyebrow text-stone">{area.title}</p><p className="mt-6 text-lg leading-[1.55] tracking-[-0.03em]">{area.items.map((item) => <span key={item} className="block">{item}</span>)}</p></section>)}</div></>;
 }
 
 function CompetitorPanel({ competitor, onClose }: { competitor: Competitor; onClose: () => void }) {
@@ -133,7 +143,7 @@ function CompetitorPanel({ competitor, onClose }: { competitor: Competitor; onCl
 }
 
 function RequestModal({ type, onClose }: { type: string; onClose: () => void }) {
-  return <div className="fixed inset-0 z-[80] flex items-end justify-center bg-black/60 p-4 backdrop-blur-sm sm:items-center" onClick={onClose}><section role="dialog" aria-modal="true" aria-labelledby="request-title" className="w-full max-w-lg rounded-[20px] border border-line bg-elevated p-7 shadow-[var(--shadow-elevated)] sm:p-10" onClick={(event)=>event.stopPropagation()}><div className="flex justify-between"><DemoBadge /><button onClick={onClose} className="text-sm text-stone">Close</button></div><h2 id="request-title" className="mt-10 text-4xl font-medium tracking-[-0.06em]">{type}</h2><p className="mt-5 leading-[1.65] text-stone">Backend requests are not enabled in this demo. Send the request directly to Yifan instead.</p><AnalyticsLink eventName="Email clicked" eventLocation="desk-demo-request" href={`mailto:yifanevanfu@gmail.com?subject=${encodeURIComponent(`China Desk Request: ${type}`)}`} className="mt-10 inline-block border-b border-ink/25 pb-1 text-sm font-medium hover:border-accent">Email Yifan →</AnalyticsLink></section></div>;
+  return <div className="fixed inset-0 z-[80] flex items-end justify-center bg-black/60 p-4 backdrop-blur-sm sm:items-center" onClick={onClose}><section role="dialog" aria-modal="true" aria-labelledby="request-title" className="w-full max-w-lg rounded-[20px] border border-line bg-elevated p-7 shadow-[var(--shadow-elevated)] sm:p-10" onClick={(event)=>event.stopPropagation()}><div className="flex justify-between"><DemoBadge /><button onClick={onClose} className="text-sm text-stone">Close</button></div><h2 id="request-title" className="mt-10 text-4xl font-medium tracking-[-0.06em]">{type}</h2><p className="mt-5 leading-[1.65] text-stone">Backend requests are not enabled in this demo. Send the request directly to Yifan instead.</p><AnalyticsLink eventName="email_clicked" eventLocation="meridian-demo-request" href={`mailto:${productConfig.email}?subject=${encodeURIComponent(`${productConfig.shortName} Request: ${type}`)}`} className="mt-10 inline-block border-b border-ink/25 pb-1 text-sm font-medium hover:border-accent">Email Yifan →</AnalyticsLink></section></div>;
 }
 
 export function DeskDemo() {
@@ -141,18 +151,18 @@ export function DeskDemo() {
   const [competitor, setCompetitor] = useState<Competitor | null>(null);
   const [requestType, setRequestType] = useState<string | null>(null);
 
-  useEffect(() => { track("Dashboard demo viewed", { location: "desk-demo" }); }, []);
+  useEffect(() => { track("demo_clicked", { location: "meridian-demo" }); }, []);
 
-  const content = view === "Overview" ? <Overview /> : view === "Market Pulse" ? <MarketPulse /> : view === "Competitors" ? <Competitors onSelect={setCompetitor} /> : view === "Partners" ? <Partners /> : view === "Research" ? <Research /> : view === "Requests" ? <Requests onRequest={setRequestType} /> : <Knowledge />;
+  const content = view === "Overview" ? <Overview /> : view === "Opportunity Map" ? <OpportunityMap /> : view === "Signals" ? <MarketPulse /> : view === "Competitors" ? <Competitors onSelect={setCompetitor} /> : view === "Partners" ? <Partners /> : view === "Pipeline" ? <Pipeline /> : view === "Research" ? <Research /> : view === "Requests" ? <Requests onRequest={setRequestType} /> : <Knowledge />;
 
   return (
     <div className="demo-shell min-h-screen bg-paper text-ink">
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 border-r border-line bg-dark-soft px-6 py-7 lg:flex lg:flex-col">
-        <div className="border-b border-line pb-6"><Link href="/desk" className="flex items-center gap-3 text-[0.72rem] font-semibold tracking-[0.08em]"><span className="h-2 w-2 rounded-full bg-accent shadow-[0_0_14px_rgba(158,215,255,0.28)]"/>CHINA DESK</Link><div className="mt-4"><DemoBadge /></div></div>
+        <div className="border-b border-line pb-6"><Link href="/" className="flex items-center gap-3 text-[0.72rem] font-semibold tracking-[0.08em]"><span className="h-2 w-2 rounded-full bg-accent shadow-[0_0_14px_rgba(145,213,255,0.4)]"/>{productConfig.shortName.toUpperCase()}</Link><div className="mt-4"><DemoBadge /></div></div>
         <nav aria-label="Dashboard" className="mt-5 overflow-y-auto">{navGroups.map((group)=><div key={group.label||"overview"}>{group.label?<p className="pb-2 pt-7 font-mono text-[0.56rem] uppercase tracking-[0.14em] text-stone">{group.label}</p>:null}<ul className="space-y-1">{group.items.map((item) => <li key={item}><button onClick={() => setView(item)} className={`relative w-full rounded-[9px] px-3 py-2.5 text-left text-[0.82rem] transition-[color,background-color] ${view === item ? "bg-accent/[0.08] font-medium text-accent before:absolute before:inset-y-2.5 before:left-0 before:w-px before:bg-accent" : "text-charcoal hover:bg-white/[0.025] hover:text-ink"}`}>{item}</button></li>)}</ul></div>)}</nav>
         <div className="mt-auto border-t border-line pt-5"><div className="flex items-start gap-3"><span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-accent"/><div><p className="text-sm font-medium">YIFAN FU</p><p className="mt-1 text-xs text-stone">China ↔ World</p></div></div></div>
       </aside>
-      <header className="sticky top-0 z-30 border-b border-line bg-paper/[0.78] px-5 py-4 backdrop-blur-2xl backdrop-saturate-150 lg:hidden"><div className="flex items-center justify-between"><Link href="/desk" className="flex items-center gap-2 text-[0.68rem] font-semibold tracking-[0.08em]"><span className="h-1.5 w-1.5 rounded-full bg-accent"/>CHINA DESK</Link><DemoBadge /></div><label htmlFor="demo-view" className="sr-only">Dashboard section</label><select id="demo-view" value={view} onChange={(event)=>setView(event.target.value as View)} className="mt-4 w-full appearance-none text-sm font-medium outline-none">{navItems.map((item)=><option key={item}>{item}</option>)}</select></header>
+      <header className="sticky top-0 z-30 border-b border-line bg-paper/[0.78] px-5 py-4 backdrop-blur-2xl backdrop-saturate-150 lg:hidden"><div className="flex items-center justify-between"><Link href="/" className="flex items-center gap-2 text-[0.68rem] font-semibold tracking-[0.08em]"><span className="h-1.5 w-1.5 rounded-full bg-accent"/>{productConfig.shortName.toUpperCase()}</Link><DemoBadge /></div><label htmlFor="demo-view" className="sr-only">Dashboard section</label><select id="demo-view" value={view} onChange={(event)=>setView(event.target.value as View)} className="mt-4 w-full appearance-none text-sm font-medium outline-none">{navItems.map((item)=><option key={item}>{item}</option>)}</select></header>
       <main className="min-h-screen bg-[radial-gradient(circle_at_60%_0%,rgba(158,215,255,0.025),transparent_26%)] px-5 py-8 sm:px-8 sm:py-12 lg:ml-72 lg:px-12 xl:px-16"><div className="mx-auto max-w-[92rem]">{content}</div></main>
       {competitor ? <CompetitorPanel competitor={competitor} onClose={() => setCompetitor(null)} /> : null}
       {requestType ? <RequestModal type={requestType} onClose={() => setRequestType(null)} /> : null}

@@ -1,26 +1,28 @@
+import { productConfig } from "@/config/productConfig";
+
 export type MarketCategory = "Market" | "Competitor" | "Regulation" | "Partner" | "Customer" | "Pricing";
-export type PartnerStatus = "Identified" | "Qualified" | "Contacted" | "Interested" | "Active";
+export type PartnerStatus = "Discovered" | "Qualified" | "Contacted" | "Replied" | "Interested" | "Negotiating" | "Active" | "Not a fit";
 
 export type MarketUpdate = { date: string; category: MarketCategory; headline: string; explanation: string; sourceType: string };
 export type Competitor = { id: string; company: string; segment: string; latestActivity: string; priority: "High" | "Medium" | "Watch"; lastUpdated: string; overview: string; products: string[]; positioning: string; notes: string; sources: string[] };
-export type Partner = { company: string; type: string; location: string; contact: string; status: PartnerStatus; notes: string };
+export type Partner = { company: string; chineseName: string; website: string; type: string; location: string; contact: string; status: PartnerStatus; notes: string; products: string; brands: string; segment: string; score: number; why: string; concerns: string; nextAction: string };
 export type ResearchItem = { title: string; date: string; status: "Complete" | "In progress" | "Planned"; description: string };
 export type KnowledgeArea = { title: string; items: string[] };
 
 export const chinaDeskDemo = {
-  client: { name: "ACME MEDICAL", desk: "China Market Desk" },
+  client: { name: "ACME MEDICAL", desk: "China Opportunity Workspace" },
   metrics: [
-    { label: "MARKET PULSE", value: "3", detail: "meaningful developments this month" },
-    { label: "COMPETITORS", value: "12", detail: "tracked · 2 new updates" },
-    { label: "PARTNERS", value: "37", detail: "identified · 12 qualified · 4 conversations" },
-    { label: "RESEARCH", value: "3", detail: "completed · 1 active" },
-    { label: "REQUESTS", value: "2", detail: "open" },
+    { label: "OPPORTUNITY SCORE", value: "87", detail: `${productConfig.shortName} assessment · explainable factors` },
+    { label: "MARKET SIGNALS", value: "3", detail: "commercial developments to review" },
+    { label: "TOP COMPETITORS", value: "12", detail: "tracked · 2 meaningful updates" },
+    { label: "OPPORTUNITIES", value: "37", detail: "customers, distributors and partners" },
+    { label: "HIGH FIT", value: "08", detail: "priority companies to investigate" },
   ],
   suggestedQueries: [
-    "Who are our strongest Chinese competitors?",
-    "Find distributors similar to this company.",
+    "Who are our strongest potential distributors?",
+    "Which companies should we contact first?",
     "What changed in our market this month?",
-    "How is our pricing positioned in China?",
+    "What should our first China move be?",
   ],
   marketUpdates: [
     { date: "12 SEP", category: "Competitor", headline: "A domestic competitor introduced a new mid-market product tier", explanation: "The launch may change pricing expectations in the segment. Positioning and channel response require monitoring.", sourceType: "Company announcement · Chinese language" },
@@ -33,11 +35,11 @@ export const chinaDeskDemo = {
     { id: "demo-c", company: "Demo Device C", segment: "Value tier", latestActivity: "Pricing unchanged", priority: "Watch", lastUpdated: "2 Sep", overview: "Illustrative company used to demonstrate a low-priority watchlist item.", products: ["Value device"], positioning: "Price-led alternative.", notes: "Keep on watchlist; no action currently required.", sources: ["Demo marketplace scan"] },
   ] satisfies Competitor[],
   partners: [
-    { company: "Example North Distributor", type: "Distributor", location: "Beijing", contact: "Not contacted", status: "Identified", notes: "Relevant hospital coverage; qualification pending." },
-    { company: "Example East Healthcare", type: "Commercial partner", location: "Shanghai", contact: "Research complete", status: "Qualified", notes: "Strong segment fit and regional team." },
-    { company: "Example South Medical", type: "Distributor", location: "Shenzhen", contact: "Introductory email", status: "Contacted", notes: "Awaiting response from commercial lead." },
-    { company: "Example Clinical Group", type: "Customer network", location: "Guangzhou", contact: "Initial call", status: "Interested", notes: "Requested localized product information." },
-    { company: "Example Service Partner", type: "Service partner", location: "Hangzhou", contact: "Working session", status: "Active", notes: "Demo active relationship for workspace visualization." },
+    { company: "Example East Healthcare", chineseName: "示例东方医疗", website: "example-east.invalid", type: "Distributor", location: "Shanghai", contact: "Commercial director identified", status: "Qualified", notes: "Strong segment fit and regional hospital team.", products: "Specialist devices and clinical systems", brands: "Imported and domestic portfolio", segment: "Specialist hospitals", score: 91, why: "Hospital overlap, imported brand portfolio and current commercial activity.", concerns: "Decision-maker identity still requires verification.", nextAction: "Verify portfolio and prepare a focused introduction." },
+    { company: "Example Clinical Group", chineseName: "示例临床集团", website: "example-clinical.invalid", type: "Customer network", location: "Guangzhou", contact: "Procurement lead unverified", status: "Replied", notes: "Requested localized product information.", products: "Specialty clinical services", brands: "Not applicable", segment: "Clinical customers", score: 87, why: "Strong specialty fit and active procurement signals.", concerns: "Procurement timeline is not yet confirmed.", nextAction: "Confirm buying cycle and relevant department." },
+    { company: "Example North Medical", chineseName: "示例北方医疗", website: "example-north.invalid", type: "Commercial partner", location: "Beijing", contact: "Not contacted", status: "Discovered", notes: "Relevant hospital coverage; qualification pending.", products: "Medical devices and service", brands: "International portfolio", segment: "Northern China", score: 82, why: "Regional coverage and signs of international readiness.", concerns: "Product overlap requires closer review.", nextAction: "Review represented brands and regional tender history." },
+    { company: "Example South Medical", chineseName: "示例南方医疗", website: "example-south.invalid", type: "Distributor", location: "Shenzhen", contact: "Introductory email sent", status: "Contacted", notes: "Awaiting response from commercial lead.", products: "Hospital equipment", brands: "Mixed portfolio", segment: "South China", score: 78, why: "Priority geography and visible distributor activity.", concerns: "Limited evidence of specialist segment coverage.", nextAction: "Follow up with a segment-specific question." },
+    { company: "Example Service Partner", chineseName: "示例服务伙伴", website: "example-service.invalid", type: "Service partner", location: "Hangzhou", contact: "Working session", status: "Active", notes: "Demo active relationship for workspace visualization.", products: "Installation and service", brands: "Multi-brand", segment: "After-sales service", score: 75, why: "Relevant service coverage and responsive operating team.", concerns: "Commercial capacity is still being assessed.", nextAction: "Document service-level expectations." },
   ] satisfies Partner[],
   research: [
     { title: "China market overview", date: "10 Sep", status: "Complete", description: "Market structure, priority segments and major commercial questions." },

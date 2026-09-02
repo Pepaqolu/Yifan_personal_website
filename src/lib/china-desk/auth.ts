@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { productConfig } from "@/config/productConfig";
 
 export type AppRole = "CLIENT" | "ADMIN";
 
@@ -52,14 +53,14 @@ export async function getWorkspaceContext(): Promise<WorkspaceContext | null> {
 
 export async function requireWorkspace() {
   const context = await getWorkspaceContext();
-  if (!context) redirect("/desk/login");
-  if (!context.organization && context.profile.role !== "ADMIN") redirect("/desk/login?error=no-workspace");
+  if (!context) redirect(productConfig.routes.login);
+  if (!context.organization && context.profile.role !== "ADMIN") redirect(`${productConfig.routes.login}?error=no-workspace`);
   return context;
 }
 
 export async function requireAdmin() {
   const context = await getWorkspaceContext();
-  if (!context) redirect("/desk/login");
-  if (context.profile.role !== "ADMIN") redirect("/desk/app");
+  if (!context) redirect(productConfig.routes.login);
+  if (context.profile.role !== "ADMIN") redirect(productConfig.routes.app);
   return context;
 }

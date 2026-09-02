@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
 import { DeskDemo } from "@/components/desk-demo";
+import { productConfig } from "@/config/productConfig";
 
-const title = "China Desk Dashboard Demo";
-const description = "A front-end demonstration of the future China Desk intelligence and execution workspace. All displayed information is demo data.";
+const title = `${productConfig.name} Opportunity Map Demo`;
+const description = `A demonstration of ${productConfig.name} opportunity discovery, market intelligence, scoring, and pipeline workflow. All displayed information is demo data.`;
 
 export const metadata: Metadata = {
   title,
   description,
-  alternates: { canonical: "/desk/demo" },
+  alternates: { canonical: productConfig.routes.demo },
   robots: { index: false, follow: false },
-  openGraph: { type: "website", title, description, url: "/desk/demo", images: [] },
+  openGraph: { type: "website", title, description, url: productConfig.routes.demo, images: [] },
   twitter: { card: "summary", title, description, images: [] },
 };
 

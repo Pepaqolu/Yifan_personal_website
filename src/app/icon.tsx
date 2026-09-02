@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { productConfig } from "@/config/productConfig";
 
 export const size = { width: 64, height: 64 };
 export const contentType = "image/png";
@@ -9,8 +10,8 @@ export default function Icon() {
     <div
       style={{
         alignItems: "center",
-        background: "#111111",
-        color: "#f5f5f2",
+        background: "#070a0e",
+        color: "#91d5ff",
         display: "flex",
         fontFamily: "sans-serif",
         fontSize: 25,
@@ -21,7 +22,7 @@ export default function Icon() {
         width: "100%",
       }}
     >
-      YF
+      {productConfig.shortName.slice(0, 1).toUpperCase()}
     </div>,
     size,
   );

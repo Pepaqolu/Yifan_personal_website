@@ -1,12 +1,14 @@
 export const clientNavigation = [
-  ["Overview", "/desk/app", ""],
-  ["Market Pulse", "/desk/app/market", "INTELLIGENCE"],
-  ["Competitors", "/desk/app/competitors", ""],
-  ["Partners", "/desk/app/partners", ""],
-  ["Research", "/desk/app/research", "WORK"],
-  ["Requests", "/desk/app/requests", ""],
-  ["Knowledge", "/desk/app/knowledge", "CONTEXT"],
-  ["Ask China", "/desk/app/ask", "COMMAND"],
+  ["Overview", "/meridian/app", ""],
+  ["Opportunity Map", "/meridian/app/partners", "DISCOVER"],
+  ["Competitors", "/meridian/app/competitors", ""],
+  ["Partners", "/meridian/app/partners?view=companies", ""],
+  ["Signals", "/meridian/app/market", ""],
+  ["Pipeline", "/meridian/app/partners?view=pipeline", "WORK"],
+  ["Research", "/meridian/app/research", ""],
+  ["Requests", "/meridian/app/requests", ""],
+  ["Knowledge", "/meridian/app/knowledge", "CONTEXT"],
+  ["Ask Meridian", "/meridian/app/ask", "COMMAND"],
 ] as const;
 
 export const adminNavigation = [
@@ -20,7 +22,7 @@ export const adminNavigation = [
   ["Market", "/admin/market", ""],
 ] as const;
 
-export const partnerStatuses = ["IDENTIFIED", "QUALIFIED", "CONTACTED", "INTERESTED", "ACTIVE", "NOT_A_FIT"] as const;
+export const partnerStatuses = ["IDENTIFIED", "QUALIFIED", "CONTACTED", "REPLIED", "INTERESTED", "NEGOTIATING", "ACTIVE", "NOT_A_FIT"] as const;
 export const requestStatuses = ["SUBMITTED", "REVIEWING", "IN_PROGRESS", "NEEDS_INFORMATION", "COMPLETED", "CANCELLED"] as const;
 export const researchStatuses = ["REQUESTED", "IN_PROGRESS", "COMPLETED", "ARCHIVED"] as const;
 export const priorities = ["LOW", "MEDIUM", "HIGH", "URGENT"] as const;

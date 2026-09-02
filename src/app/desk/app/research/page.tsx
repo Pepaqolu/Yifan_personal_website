@@ -49,7 +49,7 @@ export default async function ResearchPage() {
                       {item.attachments.map((attachment, index) => (
                         <li key={attachment.path}>
                           <Link
-                            href={`/desk/app/research/${item.id}/attachments/${index}`}
+                            href={`/meridian/app/research/${item.id}/attachments/${index}`}
                             className="border-b border-ink/20 pb-1 transition-colors hover:border-accent hover:text-accent"
                           >
                             {attachment.name} ↓

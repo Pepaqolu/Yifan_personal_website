@@ -11,8 +11,8 @@ export function DeskHeader() {
         </div>
         <nav aria-label="China Desk navigation" className="mt-4 sm:mt-0">
           <ul className="flex items-center justify-between gap-4 sm:justify-end sm:gap-7">
-            <li><AnalyticsLink eventName="Dashboard demo viewed" eventLocation="desk-nav" href="/desk/demo" className="font-mono text-[0.58rem] uppercase tracking-[0.1em] text-charcoal transition-colors hover:text-accent">Demo</AnalyticsLink></li>
-            <li><Link href="/desk/login" className="font-mono text-[0.58rem] uppercase tracking-[0.1em] text-charcoal transition-colors hover:text-accent">Client Login</Link></li>
+            <li><AnalyticsLink eventName="Dashboard demo viewed" eventLocation="desk-nav" href="/meridian/demo" className="font-mono text-[0.58rem] uppercase tracking-[0.1em] text-charcoal transition-colors hover:text-accent">Demo</AnalyticsLink></li>
+            <li><Link href="/meridian/login" className="font-mono text-[0.58rem] uppercase tracking-[0.1em] text-charcoal transition-colors hover:text-accent">Client Login</Link></li>
           </ul>
         </nav>
       </div>
