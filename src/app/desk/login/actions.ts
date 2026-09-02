@@ -10,6 +10,19 @@ function value(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
 }
 
+async function destinationForUser(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+) {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", userId)
+    .single();
+
+  return profile?.role === "ADMIN" ? "/admin" : "/desk/app";
+}
+
 export async function signIn(_: AuthState, formData: FormData): Promise<AuthState> {
   if (!isSupabaseConfigured()) return { message: "China Desk authentication has not been configured yet." };
   const email = value(formData, "email");
@@ -17,9 +30,9 @@ export async function signIn(_: AuthState, formData: FormData): Promise<AuthStat
   if (!email || !password) return { message: "Enter your email and password." };
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) return { message: "We could not sign you in. Check your invitation and credentials." };
-  redirect("/desk/app");
+  redirect(await destinationForUser(supabase, data.user.id));
 }
 
 export async function requestPasswordReset(_: AuthState, formData: FormData): Promise<AuthState> {
@@ -38,9 +51,9 @@ export async function updatePassword(_: AuthState, formData: FormData): Promise<
   const password = value(formData, "password");
   if (password.length < 10) return { message: "Use at least 10 characters." };
   const supabase = await createClient();
-  const { error } = await supabase.auth.updateUser({ password });
+  const { data, error } = await supabase.auth.updateUser({ password });
   if (error) return { message: "The password could not be updated. Request a new reset link." };
-  redirect("/desk/app");
+  redirect(await destinationForUser(supabase, data.user.id));
 }
 
 export async function signOut() {
