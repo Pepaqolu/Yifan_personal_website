@@ -15,7 +15,7 @@ The public demo continues to use fictional data and never reads private tables.
 
 1. Create a Supabase project.
 2. Copy `.env.example` to `.env.local` and add the project URL, publishable key, service-role key, and trusted site URL.
-3. Run `supabase/migrations/202609010001_china_desk_foundation.sql` with the Supabase CLI or SQL editor.
+3. Run the SQL files in `supabase/migrations` in filename order with the Supabase CLI or SQL editor.
 4. For local demo records, run `supabase/seed.sql`.
 5. Add `http://localhost:3000/auth/callback` and `https://yifan.world/auth/callback` to Supabase Auth redirect URLs.
 
@@ -92,13 +92,21 @@ pnpm build
 
 Without Supabase environment variables, public routes still run and `/desk/login` displays a configuration-safe error instead of exposing secrets.
 
+## Intelligence layer
+
+`/desk/app/ask` is an organization-scoped Ask China workspace. Answers retrieve only the signed-in client's existing knowledge, research, market, competitor, partner, request, and activity records. Every answer distinguishes stored evidence from assessment, shows sources and confidence, and can hand missing research or local execution into the existing request workflow.
+
+`/admin/intelligence` is the human review queue and drafting workspace. Each organization defaults to `REVIEW`, so generated client answers remain invisible until an admin publishes them. Admins can opt a client into `DIRECT` mode from that client's admin page.
+
+For deterministic local QA, keep `AI_PROVIDER=fixture`. For production, set `AI_PROVIDER=openai`, add `OPENAI_API_KEY`, and optionally set `OPENAI_MODEL`. These values are server-only. The provider has bounded input/output sizes, a timeout, per-user daily request protection, duplicate suppression, and internal token usage records. Generated work is never allowed to change partner pipeline status or perform outreach autonomously.
+
 ## Vercel deployment
 
 The project now uses the Vercel Next.js runtime rather than static export because protected pages require server-side cookies and authorization.
 
-1. Add the four non-seed variables from `.env.example` to Vercel Production and Preview environments.
+1. Add the Supabase, site URL, and AI provider variables from `.env.example` to Vercel Production and Preview environments. Do not add the `SEED_*` variables to Vercel.
 2. Set `NEXT_PUBLIC_SITE_URL=https://yifan.world` in Production.
 3. Deploy from `main`.
 4. Confirm the Supabase production redirect allowlist contains the production callback URL.
 
-No payments, AI calls, scraping, automated monitoring, or public registration are included in this foundation.
+No payments, scraping, automated monitoring, autonomous outreach, or public registration are included.

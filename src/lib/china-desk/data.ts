@@ -1,8 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 
 export type MarketUpdate = { id: string; title: string; summary: string; category: string; priority: string; source_url: string | null; source_name: string | null; notes: string | null; published_at: string | null; updated_at: string };
-export type Competitor = { id: string; company_name: string; chinese_name: string | null; website: string | null; location: string | null; segment: string | null; description: string | null; products: string[]; pricing_notes: string | null; positioning: string | null; recent_activity: string | null; priority: string; external_client_notes: string | null; sources: string[]; updated_at: string };
-export type Partner = { id: string; company_name: string; chinese_name: string | null; partner_type: string; location: string | null; website: string | null; contact_person: string | null; contact_role: string | null; wechat: string | null; email: string | null; phone: string | null; english_ability: string | null; interest_level: string | null; status: string; last_contact: string | null; notes: string | null; source: string | null; updated_at: string };
+export type Competitor = { id: string; company_name: string; chinese_name: string | null; website: string | null; location: string | null; segment: string | null; description: string | null; products: string[]; pricing_notes: string | null; positioning: string | null; recent_activity: string | null; priority: string; external_client_notes: string | null; sources: string[]; ai_assessment: Record<string, unknown> | null; ai_assessment_updated_at: string | null; updated_at: string };
+export type Partner = { id: string; company_name: string; chinese_name: string | null; partner_type: string; location: string | null; website: string | null; contact_person: string | null; contact_role: string | null; wechat: string | null; email: string | null; phone: string | null; english_ability: string | null; interest_level: string | null; status: string; last_contact: string | null; notes: string | null; source: string | null; ai_assessment: Record<string, unknown> | null; ai_assessment_updated_at: string | null; updated_at: string };
 export type ResearchAttachment = {
   name: string;
   path: string;
@@ -22,8 +22,8 @@ async function list<T>(table: string, organizationId: string, select = "*", orde
 }
 
 export const getMarketUpdates = (organizationId: string) => list<MarketUpdate>("market_updates", organizationId, "id,title,summary,category,priority,source_url,source_name,notes,published_at,updated_at", "published_at");
-export const getCompetitors = (organizationId: string) => list<Competitor>("competitors", organizationId, "id,company_name,chinese_name,website,location,segment,description,products,pricing_notes,positioning,recent_activity,priority,external_client_notes,sources,updated_at");
-export const getPartners = (organizationId: string) => list<Partner>("partners", organizationId, "id,company_name,chinese_name,partner_type,location,website,contact_person,contact_role,wechat,email,phone,english_ability,interest_level,status,last_contact,notes,source,updated_at");
+export const getCompetitors = (organizationId: string) => list<Competitor>("competitors", organizationId, "id,company_name,chinese_name,website,location,segment,description,products,pricing_notes,positioning,recent_activity,priority,external_client_notes,sources,ai_assessment,ai_assessment_updated_at,updated_at");
+export const getPartners = (organizationId: string) => list<Partner>("partners", organizationId, "id,company_name,chinese_name,partner_type,location,website,contact_person,contact_role,wechat,email,phone,english_ability,interest_level,status,last_contact,notes,source,ai_assessment,ai_assessment_updated_at,updated_at");
 export const getResearchReports = (organizationId: string) => list<ResearchReport>("research_reports", organizationId, "id,title,category,summary,status,full_content,sources,attachments,created_at,updated_at");
 export const getRequests = (organizationId: string) => list<ClientRequest>("requests", organizationId, "id,title,description,request_type,priority,status,updates,created_at,updated_at");
 export const getKnowledgeItems = (organizationId: string) => list<KnowledgeItem>("knowledge_items", organizationId, "id,title,category,content,tags,source,created_at,updated_at");
@@ -54,9 +54,9 @@ export async function getOverview(organizationId: string) {
 
 export async function getOrganizations() {
   const supabase = await createClient();
-  const { data, error } = await supabase.from("organizations").select("id,name,slug,created_at").order("name");
+  const { data, error } = await supabase.from("organizations").select("id,name,slug,created_at,ai_response_mode,onboarding_completed_at,onboarding_skipped_at").order("name");
   if (error) throw new Error(error.message);
-  return (data ?? []) as Array<{ id: string; name: string; slug: string; created_at: string }>;
+  return (data ?? []) as Array<{ id: string; name: string; slug: string; created_at: string; ai_response_mode: "DIRECT" | "REVIEW"; onboarding_completed_at: string | null; onboarding_skipped_at: string | null }>;
 }
 
 export async function getAdminOverview() {

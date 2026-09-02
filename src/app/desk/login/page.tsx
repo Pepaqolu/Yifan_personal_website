@@ -10,7 +10,10 @@ export const dynamic = "force-dynamic";
 
 export default async function LoginPage() {
   const context = await getWorkspaceContext();
-  if (context) redirect(context.profile.role === "ADMIN" ? "/admin" : "/desk/app");
+  if (context) {
+    if (context.profile.role === "ADMIN") redirect("/admin");
+    redirect(context.organization?.onboarding_completed_at || context.organization?.onboarding_skipped_at ? "/desk/app" : "/desk/app/onboarding");
+  }
 
   return (
     <main className="min-h-screen bg-paper text-ink">

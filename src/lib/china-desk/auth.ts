@@ -7,7 +7,14 @@ export type AppRole = "CLIENT" | "ADMIN";
 export type WorkspaceContext = {
   user: { id: string; email?: string };
   profile: { first_name: string | null; last_name: string | null; role: AppRole };
-  organization: { id: string; name: string; slug: string } | null;
+  organization: {
+    id: string;
+    name: string;
+    slug: string;
+    ai_response_mode: "DIRECT" | "REVIEW";
+    onboarding_completed_at: string | null;
+    onboarding_skipped_at: string | null;
+  } | null;
 };
 
 export async function getWorkspaceContext(): Promise<WorkspaceContext | null> {
@@ -21,7 +28,7 @@ export async function getWorkspaceContext(): Promise<WorkspaceContext | null> {
     supabase.from("profiles").select("first_name,last_name,role").eq("id", userId).single(),
     supabase
       .from("organization_members")
-      .select("organizations(id,name,slug)")
+      .select("organizations(id,name,slug,ai_response_mode,onboarding_completed_at,onboarding_skipped_at)")
       .eq("user_id", userId)
       .limit(1)
       .maybeSingle(),

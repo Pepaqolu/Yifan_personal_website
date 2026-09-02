@@ -1,5 +1,6 @@
 export const clientNavigation = [
   ["Overview", "/desk/app"],
+  ["Ask China", "/desk/app/ask"],
   ["Market Pulse", "/desk/app/market"],
   ["Competitors", "/desk/app/competitors"],
   ["Partners", "/desk/app/partners"],
@@ -10,6 +11,7 @@ export const clientNavigation = [
 
 export const adminNavigation = [
   ["Overview", "/admin"],
+  ["Intelligence", "/admin/intelligence"],
   ["Clients", "/admin/clients"],
   ["Requests", "/admin/requests"],
   ["Research", "/admin/research"],

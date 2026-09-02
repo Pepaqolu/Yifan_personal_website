@@ -20,7 +20,19 @@ async function destinationForUser(
     .eq("id", userId)
     .single();
 
-  return profile?.role === "ADMIN" ? "/admin" : "/desk/app";
+  if (profile?.role === "ADMIN") return "/admin";
+  const { data: membership } = await supabase
+    .from("organization_members")
+    .select("organizations(onboarding_completed_at,onboarding_skipped_at)")
+    .eq("user_id", userId)
+    .limit(1)
+    .maybeSingle();
+  const organization = Array.isArray(membership?.organizations)
+    ? membership.organizations[0]
+    : membership?.organizations;
+  return organization?.onboarding_completed_at || organization?.onboarding_skipped_at
+    ? "/desk/app"
+    : "/desk/app/onboarding";
 }
 
 export async function signIn(_: AuthState, formData: FormData): Promise<AuthState> {
