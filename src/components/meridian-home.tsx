@@ -1,17 +1,12 @@
 import { AnalyticsLink } from "@/components/analytics-link";
 import { Reveal } from "@/components/reveal";
 import { productConfig } from "@/config/productConfig";
+import { SourceIntelligenceFlow } from "@/components/source-intelligence-flow";
 
 const opportunities = [
   { company: "Example East Healthcare", location: "Shanghai", type: "Distributor", score: 91, reason: "Hospital reach · imported device portfolio" },
   { company: "Example Clinical Group", location: "Guangzhou", type: "Customer network", score: 87, reason: "Specialty fit · active procurement signals" },
   { company: "Example North Medical", location: "Beijing", type: "Commercial partner", score: 82, reason: "Regional coverage · international readiness" },
-] as const;
-
-const signals = [
-  ["COMPETITOR", "Domestic manufacturer launches a new mid-market product tier", "12 SEP"],
-  ["TENDER", "Hospital procurement activity increases across two priority provinces", "08 SEP"],
-  ["DISTRIBUTOR", "Regional channel expands its specialist hospital coverage", "04 SEP"],
 ] as const;
 
 const pipeline = [
@@ -75,7 +70,7 @@ export function MeridianHome() {
 
       <section id="opportunities" className="bg-dark-soft py-28 sm:py-40"><div className="page-shell"><Reveal className="grid gap-10 md:grid-cols-12"><div className="md:col-span-7"><p className="eyebrow text-accent">OPPORTUNITY DISCOVERY</p><h2 className="mt-7 text-[clamp(4rem,9vw,9rem)] font-medium leading-[0.84] tracking-[-0.075em]">37 opportunities found.</h2></div><p className="max-w-md self-end text-lg leading-7 text-charcoal md:col-span-4 md:col-start-9">Customers, distributors, suppliers and partners—ranked by relevance, with the reasoning visible.</p></Reveal><Reveal className="mt-16 rounded-[24px] border border-line bg-elevated px-6 sm:px-8"><OpportunityRows /></Reveal></div></section>
 
-      <section id="intelligence" className="py-28 sm:py-40"><div className="page-shell"><Reveal><p className="eyebrow text-accent">CONTINUOUS INTELLIGENCE</p><h2 className="mt-7 max-w-[12ch] text-[clamp(3.4rem,7vw,7.5rem)] font-medium leading-[0.89] tracking-[-0.07em]">China moves quickly.<br /><span className="text-charcoal">{productConfig.shortName} keeps watching.</span></h2></Reveal><div className="mt-20 grid gap-8 xl:grid-cols-12"><Reveal className="rounded-[24px] border border-line bg-elevated p-6 sm:p-8 xl:col-span-8"><div className="flex justify-between"><p className="eyebrow text-stone">MARKET SIGNALS</p><DemoLabel /></div><div className="mt-8 border-t border-line">{signals.map(([type,title,date])=><article key={title} className="grid gap-3 border-b border-line py-6 sm:grid-cols-12 sm:items-center"><p className="font-mono text-[0.6rem] text-accent sm:col-span-2">{type}</p><h3 className="font-medium sm:col-span-8">{title}</h3><p className="font-mono text-[0.6rem] text-stone sm:col-span-2 sm:text-right">{date}</p></article>)}</div></Reveal><Reveal delay={0.08} className="rounded-[24px] border border-line bg-soft p-6 sm:p-8 xl:col-span-4"><p className="eyebrow text-stone">DESIGNED TO CONNECT</p><p className="mt-8 text-xl leading-[1.35] tracking-[-0.035em]">Chinese company sites, tenders, regulatory notices, distributor activity, business records, industry publications and market signals.</p><p className="mt-8 text-sm leading-6 text-stone">{productConfig.shortName} is being built to monitor and connect intelligence across Chinese-language sources. Coverage expands as data integrations are verified.</p></Reveal></div></div></section>
+      <SourceIntelligenceFlow />
 
       <section id="pipeline" className="border-y border-line bg-dark-soft py-28 sm:py-40"><div className="page-shell"><Reveal className="grid gap-10 lg:grid-cols-12"><div className="lg:col-span-6"><p className="eyebrow text-accent">OPPORTUNITY PIPELINE</p><h2 className="mt-7 text-[clamp(3.4rem,7vw,7rem)] font-medium leading-[0.9] tracking-[-0.07em]">From discovery<br />to deal.</h2></div><div className="self-end lg:col-span-4 lg:col-start-9"><p className="text-2xl font-medium tracking-[-0.04em]">{productConfig.shortName} finds the opportunity.</p><p className="mt-3 text-2xl tracking-[-0.04em] text-charcoal">You control the relationship.</p></div></Reveal><Reveal className="mt-16 overflow-x-auto rounded-[24px] border border-line bg-elevated p-6"><div className="flex min-w-[850px] gap-3">{pipeline.map(([stage,count],index)=><div key={stage} className="min-w-0 flex-1 rounded-xl border border-line bg-soft p-4"><div className="flex items-center justify-between"><span className="font-mono text-[0.58rem] uppercase tracking-[0.08em] text-stone">{stage}</span><span className="text-sm font-medium text-accent">{count}</span></div><div className="mt-8 h-1 overflow-hidden rounded-full bg-white/[0.04]"><div className="h-full bg-accent" style={{width:`${Math.max(12,100-index*13)}%`}} /></div></div>)}</div></Reveal></div></section>
 
