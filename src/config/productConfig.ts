@@ -21,6 +21,7 @@ export const productConfig = {
     analyze: "/analyze",
     demo: "/meridian/demo",
     login: "/meridian/login",
+    signup: "/meridian/signup",
     app: "/meridian/app",
     trial: "/meridian/trial",
   },

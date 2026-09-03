@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getTrustedSiteUrl, isSupabaseConfigured } from "@/lib/supabase/config";
 import { productConfig } from "@/config/productConfig";
+import { provisionClientWorkspace } from "@/lib/china-desk/provision";
 
 export type AuthState = { message: string; success?: boolean };
 
@@ -45,6 +46,10 @@ export async function signIn(_: AuthState, formData: FormData): Promise<AuthStat
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) return { message: "We could not sign you in. Check your invitation and credentials." };
+  try { await provisionClientWorkspace(supabase); } catch (provisionError) {
+    const {data:profile}=await supabase.from("profiles").select("role").eq("id",data.user.id).single();
+    if(profile?.role!=="ADMIN")return{message:provisionError instanceof Error?provisionError.message:"Your workspace could not be prepared."};
+  }
   redirect(await destinationForUser(supabase, data.user.id));
 }
 

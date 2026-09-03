@@ -7,12 +7,15 @@ import { ProductIntelligenceService } from "@/lib/meridian-intelligence/product-
 import { ChinaQueryPlanner } from "@/lib/meridian-intelligence/query-planner";
 import { MeridianSearchRunner } from "@/lib/search/runner";
 import { searchProviderConfiguration } from "@/lib/search/provider";
+import { fetchPublicPage } from "@/lib/analysis/fetch-public-page";
 
 const value=(form:FormData,key:string,max=4000)=>String(form.get(key)||"").trim().slice(0,max);
 const list=(form:FormData,key:string)=>value(form,key,3000).split(/[\n,，]/).map((item)=>item.trim()).filter(Boolean).slice(0,30);
 const values=(form:FormData,key:string)=>form.getAll(key).map((item)=>String(item).trim()).filter(Boolean).slice(0,20);
 
 export type ProductActionState={message:string;success?:boolean;profileId?:string;preparedSearches?:number;searchStarted?:boolean;stage?:string};
+export type RetryActionState={message:string;success?:boolean};
+export type UnderstandingState={message:string;success?:boolean;productName?:string;summary?:string;audiences?:string[];industry?:string;objectives?:string[];mode?:"WEBSITE_RETRIEVAL"|"USER_INPUT_FALLBACK"};
 async function persistProductProfile(form:FormData):Promise<ProductActionState> {
   const context=await requireWorkspace();
   if(!context.organization) throw new Error("A client workspace is required.");
@@ -40,7 +43,10 @@ async function persistProductProfile(form:FormData):Promise<ProductActionState> 
     target_geography:understood.targetGeography||"China", china_status:understood.chinaStatus||null,
     keywords_en:understood.keywordsEn||[], keywords_zh:understood.keywordsZh||[], formal_terms_zh:understood.formalTermsZh||[],
     procurement_terms_zh:understood.procurementTermsZh||[], distributor_terms_zh:understood.distributorTermsZh||[],
-    regulatory_terms_zh:understood.regulatoryTermsZh||[], related_categories:understood.relatedCategories,
+    regulatory_terms_zh:understood.regulatoryTermsZh||[], supplier_terms_zh:list(form,"supplier_terms_zh"), related_categories:understood.relatedCategories,
+    understanding_summary:value(form,"understanding_summary")||understood.productDescription||understood.productName,
+    likely_audiences:values(form,"likely_audiences").length?values(form,"likely_audiences"):understood.targetCustomer?[understood.targetCustomer]:[],
+    understanding_status:"CONFIRMED",understanding_mode:value(form,"understanding_mode",40)||"USER_INPUT_FALLBACK",understanding_confirmed_at:new Date().toISOString(),
     terminology_status: understood.keywordsZh?.length ? "USER_CONFIRMED" : "AI_GENERATED", created_by:context.user.id,
   };
   let id=profileId;
@@ -62,12 +68,31 @@ async function persistProductProfile(form:FormData):Promise<ProductActionState> 
   }
     if(progress)await supabase.from("analysis_progress").update({stage:"QUERY_PLANNING",status:"COMPLETE",completed_stages:["PRODUCT_PROFILE","QUERY_PLANNING"]}).eq("id",progress.id);
     const config=searchProviderConfiguration();if(config.configured&&insertedPlans.length){const runner=new MeridianSearchRunner();await Promise.allSettled(insertedPlans.sort((a,b)=>a.priority-b.priority).slice(0,3).map((plan)=>runner.run({organizationId:context.organization!.id,productId:id,queryPlanId:plan.id})));}
+  await supabase.rpc("save_client_onboarding",{answers:[
+    {title:"Product overview",category:"Products",content:understood.productDescription||understood.productName},
+    {title:"China objectives",category:"Commercial Strategy",content:objectives.join(", ")},
+    {title:"Target customers",category:"Target Customers",content:understood.targetCustomer||""},
+    {title:"Additional context",category:"Other Context",content:understood.additionalContext||""},
+  ],skip_onboarding:false});
   await supabase.from("activity").insert({organization_id:context.organization.id,actor_id:context.user.id,action:`Product profile saved: ${understood.productName}`,entity_type:"product",entity_id:id});
   revalidatePath("/meridian/app/product"); revalidatePath("/meridian/app/regulatory");
   return {message:searchProviderConfiguration().configured?"Profile saved. Meridian searched the highest-priority China paths.":"Profile saved. Your China search strategy is ready.",success:true,profileId:id,preparedSearches:plans.length,searchStarted:searchProviderConfiguration().configured,stage:searchProviderConfiguration().configured?"EVIDENCE_REVIEW":"QUERY_PLANNING"};
 }
 
 export async function saveProductProfile(_:ProductActionState,form:FormData):Promise<ProductActionState>{try{return await persistProductProfile(form);}catch(error){return{message:error instanceof Error?error.message:"Meridian could not save this profile.",stage:"FAILED"};}}
+
+export async function retryProductResearch(_:RetryActionState,form:FormData):Promise<RetryActionState>{try{const context=await requireWorkspace();if(!context.organization)throw new Error("A client workspace is required.");if(!searchProviderConfiguration().configured)throw new Error("The search provider is not configured.");const id=value(form,"id",100);const supabase=await createClient();const {data,error}=await supabase.from("query_plans").select("id,priority").eq("organization_id",context.organization.id).eq("product_id",id).in("status",["FAILED","PLANNED"]).order("priority").limit(3);if(error)throw new Error(error.message);if(!data?.length)return{message:"There are no paused searches to retry.",success:true};const runner=new MeridianSearchRunner();const results=await Promise.allSettled(data.map((plan)=>runner.run({organizationId:context.organization!.id,productId:id,queryPlanId:plan.id})));const completed=results.filter((item)=>item.status==="fulfilled").length;revalidatePath(`/meridian/app/product?id=${id}`);return completed?{message:`Research resumed ✓ ${completed} search${completed===1?"":"es"} completed.`,success:true}:{message:"Meridian still could not reach the search sources. Your completed work remains saved."};}catch(error){return{message:error instanceof Error?error.message:"Research could not be retried."};}}
+
+export async function prepareProductUnderstanding(_:UnderstandingState,form:FormData):Promise<UnderstandingState>{
+  const url=value(form,"company_url",500),description=value(form,"product_name",1000),objectives=values(form,"objectives"),target=value(form,"target_customer",1000);
+  if(!url||!description||!objectives.length)return{message:"Complete the URL, product description and at least one China objective."};
+  let mode:"WEBSITE_RETRIEVAL"|"USER_INPUT_FALLBACK"="USER_INPUT_FALLBACK";
+  try{const normalized=new URL(url.match(/^https?:\/\//i)?url:`https://${url}`).toString();await fetchPublicPage(normalized);mode="WEBSITE_RETRIEVAL";}catch{/* User input remains a safe, provider-independent fallback. */}
+  const understood=new ProductIntelligenceService().understand({productName:description,productDescription:description,targetCustomer:target,businessGoal:objectives.join(", "),objectives,targetGeography:"China"});
+  const goalAudiences:Record<string,string>={distributors:"China distributors",customers:"China buyers and end users",partners:"Commercial partners",suppliers:"China manufacturers and suppliers",competitors:"Adjacent competitors",tenders:"Procurement organizations",pricing:"China market participants",regulation:"China regulatory stakeholders"};
+  const audiences=[...new Set([target,...objectives.map((goal)=>goalAudiences[goal])].filter(Boolean))].slice(0,5);
+  return{message:mode==="WEBSITE_RETRIEVAL"?"Meridian combined the supplied page with your description.":"The website could not be read, so Meridian used your description without inventing details.",success:true,productName:description.slice(0,240),summary:description,audiences,industry:understood.industry,objectives,mode};
+}
 
 export async function generateQueryPlan(form:FormData){
   const context=await requireWorkspace(); if(!context.organization) throw new Error("A client workspace is required.");

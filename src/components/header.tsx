@@ -6,7 +6,7 @@ import { productConfig } from "@/config/productConfig";
 import { AnnouncementTeaser } from "./announcement-teaser";
 import { MeridianBrand } from "./meridian-brand";
 
-export function Header() {
+export function Header({authenticated=false}:{authenticated?:boolean}) {
   const { scrollY } = useScroll();
   const [scrolled, setScrolled] = useState(false);
 
@@ -20,7 +20,7 @@ export function Header() {
           <a href="#top" className="text-[0.62rem]" aria-label={`${productConfig.name}, back to top`}><MeridianBrand compact /></a>
           <nav aria-label="Primary navigation">
             <ul className="flex items-center gap-4 sm:gap-7">
-              {[{label:"Advantage",href:"#intelligence"},{label:"Product",href:"#product"},{label:"Sign in",href:productConfig.routes.login}].map((item, index) => (
+              {[{label:"Advantage",href:"#intelligence"},{label:"Product",href:"#product"},{label:authenticated?"Open Meridian":"Sign in",href:authenticated?productConfig.routes.app:productConfig.routes.login}].map((item, index) => (
                 <li key={item.href} className={index < 2 ? "hidden sm:block" : undefined}>
                   <a href={item.href} className="font-mono text-[0.58rem] uppercase tracking-[0.11em] text-charcoal transition-colors duration-500 hover:text-accent sm:text-[0.65rem]">{item.label}</a>
                 </li>

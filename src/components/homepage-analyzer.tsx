@@ -13,7 +13,7 @@ export function HomepageAnalyzer({ eventName, compact = false }: { eventName: "h
     const value = website.trim();
     if (!value) return;
     track(eventName, { location: compact ? "homepage-final" : "homepage-hero" });
-    router.push(`/analyze?website=${encodeURIComponent(value)}`);
+    router.push(`/meridian/signup?website=${encodeURIComponent(value)}`);
   }
 
   return (
