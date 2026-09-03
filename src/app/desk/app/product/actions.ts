@@ -1,17 +1,19 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { requireWorkspace } from "@/lib/china-desk/auth";
 import { createClient } from "@/lib/supabase/server";
 import { ProductIntelligenceService } from "@/lib/meridian-intelligence/product-service";
 import { ChinaQueryPlanner } from "@/lib/meridian-intelligence/query-planner";
+import { MeridianSearchRunner } from "@/lib/search/runner";
+import { searchProviderConfiguration } from "@/lib/search/provider";
 
 const value=(form:FormData,key:string,max=4000)=>String(form.get(key)||"").trim().slice(0,max);
 const list=(form:FormData,key:string)=>value(form,key,3000).split(/[\n,，]/).map((item)=>item.trim()).filter(Boolean).slice(0,30);
 const values=(form:FormData,key:string)=>form.getAll(key).map((item)=>String(item).trim()).filter(Boolean).slice(0,20);
 
-export async function saveProductProfile(form:FormData) {
+export type ProductActionState={message:string;success?:boolean;profileId?:string;preparedSearches?:number;searchStarted?:boolean;stage?:string};
+async function persistProductProfile(form:FormData):Promise<ProductActionState> {
   const context=await requireWorkspace();
   if(!context.organization) throw new Error("A client workspace is required.");
   const profileId=value(form,"id",100);
@@ -51,16 +53,21 @@ export async function saveProductProfile(form:FormData) {
   }
   const {data:progress}=await supabase.from("analysis_progress").insert({organization_id:context.organization.id,product_id:id,stage:"QUERY_PLANNING",status:"RUNNING",completed_stages:["PRODUCT_PROFILE"],created_by:context.user.id}).select("id").single();
   const plans=new ChinaQueryPlanner().plan(understood);
+  let insertedPlans:{id:string;priority:number}[]=[];
   if(plans.length){
-    const {error:planError}=await supabase.from("query_plans").insert(plans.map((plan)=>({organization_id:context.organization!.id,product_id:id,intent:plan.intent,query:plan.query,query_language:plan.queryLanguage,preferred_source_types:plan.preferredSourceTypes,geography:plan.geography,product_terms:plan.productTerms,rationale:plan.rationale,priority:plan.priority,created_by:context.user.id})));
+    const {data,error:planError}=await supabase.from("query_plans").insert(plans.map((plan)=>({organization_id:context.organization!.id,product_id:id,intent:plan.intent,query:plan.query,query_language:plan.queryLanguage,preferred_source_types:plan.preferredSourceTypes,geography:plan.geography,product_terms:plan.productTerms,rationale:plan.rationale,priority:plan.priority,created_by:context.user.id}))).select("id,priority");
     if(planError){if(progress)await supabase.from("analysis_progress").update({stage:"FAILED",status:"FAILED",error_message:planError.message}).eq("id",progress.id);throw new Error(planError.message);}
+    insertedPlans=(data||[]) as {id:string;priority:number}[];
     await supabase.from("retrieval_logs").insert(plans.map((plan)=>({organization_id:context.organization!.id,product_id:id,event_type:"QUERY_GENERATED",message:plan.rationale,metadata:{intent:plan.intent,query:plan.query}})));
   }
-  if(progress)await supabase.from("analysis_progress").update({stage:"COMPLETE",status:"COMPLETE",completed_stages:["PRODUCT_PROFILE","QUERY_PLANNING"]}).eq("id",progress.id);
+    if(progress)await supabase.from("analysis_progress").update({stage:"QUERY_PLANNING",status:"COMPLETE",completed_stages:["PRODUCT_PROFILE","QUERY_PLANNING"]}).eq("id",progress.id);
+    const config=searchProviderConfiguration();if(config.configured&&insertedPlans.length){const runner=new MeridianSearchRunner();await Promise.allSettled(insertedPlans.sort((a,b)=>a.priority-b.priority).slice(0,3).map((plan)=>runner.run({organizationId:context.organization!.id,productId:id,queryPlanId:plan.id})));}
   await supabase.from("activity").insert({organization_id:context.organization.id,actor_id:context.user.id,action:`Product profile saved: ${understood.productName}`,entity_type:"product",entity_id:id});
   revalidatePath("/meridian/app/product"); revalidatePath("/meridian/app/regulatory");
-  redirect(`/meridian/app/product?id=${id}`);
+  return {message:searchProviderConfiguration().configured?"Profile saved. Meridian searched the highest-priority China paths.":"Profile saved. Your China search strategy is ready.",success:true,profileId:id,preparedSearches:plans.length,searchStarted:searchProviderConfiguration().configured,stage:searchProviderConfiguration().configured?"EVIDENCE_REVIEW":"QUERY_PLANNING"};
 }
+
+export async function saveProductProfile(_:ProductActionState,form:FormData):Promise<ProductActionState>{try{return await persistProductProfile(form);}catch(error){return{message:error instanceof Error?error.message:"Meridian could not save this profile.",stage:"FAILED"};}}
 
 export async function generateQueryPlan(form:FormData){
   const context=await requireWorkspace(); if(!context.organization) throw new Error("A client workspace is required.");

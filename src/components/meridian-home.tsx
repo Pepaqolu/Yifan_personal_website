@@ -24,7 +24,6 @@ export function MeridianHome() {
             </Reveal>
             <Reveal delay={0.08} className="mt-9">
               <HomepageAnalyzer eventName="hero_analyze_started" />
-              <AnalyticsLink eventName="hero_demo_clicked" eventLocation="homepage-hero" href={productConfig.routes.demo} className="group mt-5 inline-flex items-center gap-3 text-sm font-medium text-charcoal transition-colors hover:text-ink">See demo <span className="text-accent transition-transform group-hover:translate-x-1">→</span></AnalyticsLink>
             </Reveal>
           </div>
 
@@ -53,7 +52,6 @@ export function MeridianHome() {
             <p className="eyebrow text-accent">START WITH YOUR COMPANY</p>
             <h2 className="mt-5 max-w-[13ch] text-[clamp(3.6rem,8vw,5.5rem)] font-medium leading-[0.86] tracking-[-0.075em]">What could China look like for your company?</h2>
             <div className="mt-8"><HomepageAnalyzer eventName="final_analyze_clicked" compact /></div>
-            <AnalyticsLink eventName="demo_clicked" eventLocation="homepage-final" href={productConfig.routes.demo} className="group mt-5 inline-flex items-center gap-3 text-sm font-medium text-charcoal hover:text-ink">See demo <span className="text-accent transition-transform group-hover:translate-x-1">→</span></AnalyticsLink>
           </Reveal>
         </div>
       </section>

@@ -30,7 +30,7 @@ export default async function LoginPage() {
           <Link href="/meridian/login/reset" className="mt-8 inline-block text-xs text-stone transition-colors hover:text-ink">Forgot password?</Link>
         </section>
         <footer className="border-t border-line pt-5 text-xs text-stone">
-          Need access? <Link className="text-ink transition-colors hover:text-accent" href={productConfig.routes.analyze}>Analyze your China opportunity →</Link>
+          Need access? <a className="text-ink transition-colors hover:text-accent" href={`mailto:${productConfig.email}?subject=${encodeURIComponent("Meridian private access")}`}>Request private access →</a>
         </footer>
       </div>
     </main>

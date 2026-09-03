@@ -1,34 +1,39 @@
 import Link from "next/link";
+import { AnalysisProgress } from "@/components/china-desk-app/intelligence-ui";
+import { ProductProfileWizard } from "@/components/china-desk-app/product-profile-wizard";
 import { PageHeader, Status } from "@/components/china-desk-app/ui";
 import { requireWorkspace } from "@/lib/china-desk/auth";
 import { getProductIntelligence, getProductProfiles } from "@/lib/meridian-intelligence/data";
-import { saveProductProfile } from "./actions";
 import { createClient } from "@/lib/supabase/server";
 
-const join=(items:string[])=>items.join("\n");
-const Field=({label,name,value="",rows=1,placeholder="",required=false}:{label:string;name:string;value?:string;rows?:number;placeholder?:string;required?:boolean})=><label className="block"><span className="eyebrow text-stone">{label}</span>{rows>1?<textarea name={name} defaultValue={value} rows={rows} placeholder={placeholder} required={required} className="mt-3 w-full"/>:<input name={name} defaultValue={value} placeholder={placeholder} required={required} className="mt-3 w-full"/>}</label>;
-const goals=[['distributors','Find distributors'],['customers','Find customers'],['partners','Find partners'],['suppliers','Find suppliers'],['competitors','Understand competitors'],['tenders','Track tenders'],['pricing','Understand pricing'],['regulation','Understand regulation']] as const;
+const intentLabels:Record<string,string>={
+  DISTRIBUTOR:"Distributors",PARTNER:"Partners",CUSTOMER:"Customers",SUPPLIER:"Suppliers",
+  COMPETITOR:"Competitors",REGULATORY:"Regulation",TENDER:"Tenders",PRICING:"Pricing",
+  COMPANY:"Company activity",MARKET:"Market signals",
+};
 
 export default async function ProductPage({searchParams}:{searchParams:Promise<{id?:string}>}){
-  const context=await requireWorkspace();const profiles=await getProductProfiles(context.organization!.id);const params=await searchParams;
+  const context=await requireWorkspace();
+  const profiles=await getProductProfiles(context.organization!.id);
+  const params=await searchParams;
   const selected=profiles.find((item)=>item.id===params.id)||profiles[0]||null;
   const intelligence=selected?await getProductIntelligence(context.organization!.id,selected.id):null;
-  const supabase=await createClient();const progress=selected?(await supabase.from("analysis_progress").select("stage,status,completed_stages,error_message,updated_at").eq("organization_id",context.organization!.id).eq("product_id",selected.id).order("updated_at",{ascending:false}).limit(1).maybeSingle()).data:null;
-  const extended=selected as (typeof selected & {objectives?:string[];additional_context?:string})|null;
-  const objectives=extended?.objectives||[];
-  return <><PageHeader eyebrow="PRODUCT PROFILE" title="Tell Meridian what matters." description="A focused product brief becomes a China-specific search strategy. You can refine the advanced details later." action={selected?<Link href="/meridian/app/partners" className="text-xs text-stone hover:text-accent">View opportunities →</Link>:undefined}/>
+  const supabase=await createClient();
+  const progress=selected?(await supabase.from("analysis_progress").select("stage,status,completed_stages,error_message,updated_at").eq("organization_id",context.organization!.id).eq("product_id",selected.id).order("updated_at",{ascending:false}).limit(1).maybeSingle()).data:null;
+  const categories=[...new Set((intelligence?.queries||[]).map((query)=>intentLabels[query.intent.toUpperCase()]||query.intent.replaceAll("_"," ")))].slice(0,9);
+
+  return <>
+    <PageHeader eyebrow="PRODUCT PROFILE" title="Tell Meridian what matters." description="A short product brief becomes a China-specific search strategy. Meridian generates the technical detail; you stay in control." action={selected?<Link href="/meridian/app/partners" className="text-xs text-stone hover:text-accent">View opportunities →</Link>:undefined}/>
     {profiles.length>1?<nav className="mb-12 flex flex-wrap gap-4" aria-label="Products">{profiles.map((profile)=><Link key={profile.id} href={`/meridian/app/product?id=${profile.id}`} className={`text-sm ${profile.id===selected?.id?"text-accent":"text-stone"}`}>{profile.product_name}</Link>)}</nav>:null}
-    <form action={saveProductProfile} className="max-w-5xl"><input type="hidden" name="id" value={selected?.id||""}/>
-      <section className="space-y-9 border-t border-line pt-10">
-        <Field label="Company or product URL" name="company_url" value={selected?.company_url||""} placeholder="https://example.com"/>
-        <Field label="What do you sell?" name="product_name" value={selected?.product_name||""} placeholder="Describe the product or service in plain language" required/>
-        <div><p className="eyebrow text-stone">What do you want to understand in China?</p><div className="mt-5 grid gap-x-8 gap-y-4 sm:grid-cols-2">{goals.map(([goal,label])=><label key={goal} className="flex items-center gap-3 text-sm text-charcoal"><input type="checkbox" name="objectives" value={goal} defaultChecked={objectives.includes(goal)} className="h-4 w-4 accent-[var(--color-accent)]"/>{label}</label>)}</div></div>
-        <div className="grid gap-7 sm:grid-cols-2"><Field label="Target audience · optional" name="target_customer" value={selected?.target_customer||""} rows={3} placeholder="Who buys, specifies, distributes or uses it?"/><Field label="Additional context · optional" name="additional_context" value={extended?.additional_context||""} rows={3} placeholder="Markets, constraints or questions Meridian should know"/></div>
-      </section>
-      <details className="mt-12 border-t border-line pt-7"><summary className="cursor-pointer text-sm text-stone transition-colors hover:text-ink">Advanced product details</summary><div className="mt-8 grid gap-6 sm:grid-cols-2"><Field label="Company" name="company_name" value={selected?.company_name||""}/><Field label="Product description" name="product_description" value={selected?.product_description||""} rows={3}/><Field label="Intended use" name="intended_use" value={selected?.intended_use||""} rows={3}/><Field label="Clinical or operating use" name="clinical_use" value={selected?.clinical_use||""} rows={3}/><Field label="Target departments" name="target_department" value={selected?.target_department||""}/><Field label="Market segment" name="target_market_segment" value={selected?.target_market_segment||""}/><Field label="Target geography" name="target_geography" value={selected?.target_geography||"China"}/><Field label="Current China status" name="china_status" value={selected?.china_status||""} rows={3}/><Field label="English product terms" name="keywords_en" value={join(selected?.keywords_en||[])} rows={3}/><Field label="Product terms · 中文" name="keywords_zh" value={join(selected?.keywords_zh||[])} rows={3}/><Field label="Formal terms · 中文" name="formal_terms_zh" value={join(selected?.formal_terms_zh||[])} rows={3}/><Field label="Distributor terms · 中文" name="distributor_terms_zh" value={join(selected?.distributor_terms_zh||[])} rows={3}/><Field label="Procurement terms · 中文" name="procurement_terms_zh" value={join(selected?.procurement_terms_zh||[])} rows={3}/><Field label="Regulatory terms · 中文" name="regulatory_terms_zh" value={join(selected?.regulatory_terms_zh||[])} rows={3}/></div></details>
-      <div className="mt-12 border-t border-line pt-7"><button className="text-sm font-medium text-accent">Save profile and build search strategy →</button><p className="mt-3 text-xs leading-5 text-stone">Meridian saves the profile, identifies the appropriate industry overlay, and creates a traceable query plan. No results are fabricated while you wait.</p></div>
-    </form>
-    {progress?<section className="mt-16 border-y border-line py-7"><div className="flex flex-wrap items-center justify-between gap-5"><div><p className="eyebrow text-stone">ANALYSIS PROGRESS</p><p className="mt-3 text-lg">{progress.status==="FAILED"?"Meridian stopped safely.":progress.stage==="COMPLETE"?"Product understood. Search strategy ready.":progress.stage.replaceAll("_"," ")}</p></div><Status>{progress.status}</Status></div><div className="mt-6 flex flex-wrap gap-x-8 gap-y-3 text-xs text-stone">{["PRODUCT_PROFILE","QUERY_PLANNING","SEARCHING","FETCHING","EVIDENCE_REVIEW","SCORING","INTERPRETING","COMPLETE"].map((stage)=><span key={stage} className={progress.completed_stages.includes(stage)||progress.stage===stage?"text-accent":""}>{progress.completed_stages.includes(stage)?"✓ ":progress.stage===stage?"• ":"○ "}{stage.replaceAll("_"," ")}</span>)}</div>{progress.error_message?<p className="mt-5 text-sm text-accent">{progress.error_message}</p>:null}</section>:null}
-    {selected?<section className="mt-24 border-t border-line pt-10"><div><p className="eyebrow text-stone">CHINA QUERY PLANNER</p><h2 className="mt-4 text-3xl font-medium tracking-[-0.05em]">Your search strategy.</h2><p className="mt-3 text-sm text-stone">{selected.industry||'Universal'} overlay · {intelligence?.queries.length||0} planned searches</p></div>{intelligence?.queries.length?<div className="mt-8 border-t border-line">{intelligence.queries.map((query)=><article key={query.id} className="grid gap-4 border-b border-line py-6 md:grid-cols-12"><div className="md:col-span-3"><Status>{query.intent}</Status><p className="mt-3 text-xs text-stone">Priority {query.priority}</p></div><div className="md:col-span-5"><p className="text-lg">{query.query}</p><p className="mt-2 text-xs text-stone">{query.query_language}</p></div><p className="text-sm leading-6 text-charcoal md:col-span-4">{query.rationale}</p></article>)}</div>:<p className="mt-7 text-sm text-stone">Save this profile to build its search strategy.</p>}</section>:null}
+
+    <ProductProfileWizard initial={selected}/>
+
+    {progress?<section className="mt-20 max-w-5xl"><AnalysisProgress stage={progress.stage} status={progress.status} completedStages={progress.completed_stages||[]} error={progress.error_message}/></section>:null}
+
+    {selected?<section className="mt-28 max-w-5xl border-t border-line pt-10">
+      <div className="flex flex-wrap items-end justify-between gap-5"><div><p className="eyebrow text-stone">SEARCH STRATEGY READY</p><h2 className="mt-4 text-3xl font-medium tracking-[-0.05em]">{intelligence?.queries.length||0} searches prepared.</h2><p className="mt-3 text-sm text-charcoal">Meridian translated your objective into a traceable China search plan.</p></div><Status>{selected.industry||"Universal"}</Status></div>
+      {categories.length?<div className="mt-9 flex flex-wrap gap-x-7 gap-y-4">{categories.map((category)=><span key={category} className="text-sm text-ink">{category}</span>)}</div>:<p className="mt-7 text-sm text-stone">Complete the profile to prepare your search strategy.</p>}
+      {intelligence?.queries.length?<details className="mt-10 border-t border-line pt-6"><summary className="cursor-pointer text-sm text-stone transition-colors hover:text-accent">View technical search details →</summary><div className="mt-6 border-t border-line">{intelligence.queries.map((query)=><article key={query.id} className="grid gap-4 border-b border-line py-6 md:grid-cols-12"><div className="md:col-span-3"><Status>{intentLabels[query.intent.toUpperCase()]||query.intent}</Status><p className="mt-3 text-xs text-stone">Priority {query.priority}</p></div><div className="md:col-span-5"><p className="text-base leading-6">{query.query}</p><p className="mt-2 text-xs text-stone">{query.query_language}</p></div><p className="text-sm leading-6 text-charcoal md:col-span-4">{query.rationale}</p></article>)}</div></details>:null}
+    </section>:null}
   </>;
 }

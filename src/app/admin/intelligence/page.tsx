@@ -109,7 +109,7 @@ export default async function IntelligencePage() {
   await requireAdmin();
   const supabase = await createClient();
   const organizations = await getOrganizations();
-  const [draftsResult, questionsResult, lowConfidenceResult, usageResult, recentQuestionsResult, gapsResult, handoffsResult] = await Promise.all([
+  const [draftsResult, questionsResult, lowConfidenceResult, usageResult, recentQuestionsResult, gapsResult, handoffsResult, clientVisibleResult, internalResult, conflictsResult] = await Promise.all([
     supabase.from("ai_drafts").select("id,organization_id,feature,output,source_material,created_at,organizations(name)").eq("status", "DRAFT").order("created_at", { ascending: true }),
     supabase.from("ai_messages").select("id", { count: "exact", head: true }).eq("role", "USER"),
     supabase.from("ai_messages").select("id", { count: "exact", head: true }).eq("role", "ASSISTANT").eq("confidence", "LOW"),
@@ -117,6 +117,9 @@ export default async function IntelligencePage() {
     supabase.from("ai_messages").select("id,content,created_at,organizations(name)").eq("role", "USER").order("created_at", { ascending: false }).limit(100),
     supabase.from("ai_messages").select("id,content,created_at,organizations(name)").eq("role", "ASSISTANT").eq("confidence", "LOW").order("created_at", { ascending: false }).limit(8),
     supabase.from("requests").select("id,title,status,created_at,organizations(name)").or("description.ilike.Created from Ask Meridian.%,description.ilike.Created from Ask China.%").order("created_at", { ascending: false }).limit(8),
+    supabase.from("search_results").select("id",{count:"exact",head:true}).eq("eligible_for_client",true),
+    supabase.from("search_results").select("id",{count:"exact",head:true}).eq("eligible_for_client",false),
+    supabase.from("conflict_records").select("id",{count:"exact",head:true}).eq("status","OPEN"),
   ]);
   if (draftsResult.error) throw new Error(draftsResult.error.message);
   const drafts = (draftsResult.data || []) as Draft[];
@@ -125,9 +128,9 @@ export default async function IntelligencePage() {
   const tokens = (usageResult.data || []).reduce((sum, item) => sum + Number(item.total_tokens || 0), 0);
 
   return <>
-    <PageHeader eyebrow="INTELLIGENCE" title="Human judgment, kept in the loop." description="Review client answers and turn source material into publishable Meridian intelligence." />
+    <PageHeader eyebrow="INTELLIGENCE" title="Human judgment, kept in the loop." description="Qualifying search signals flow to clients automatically. Editorial drafts, lower-confidence findings and conflicts remain explicit and governed." />
     <div className="grid border-y border-line sm:grid-cols-2 xl:grid-cols-4">
-      {[["QUESTIONS", questionsResult.count || 0], ["AWAITING REVIEW", drafts.length], ["LOW CONFIDENCE", lowConfidenceResult.count || 0], ["TOKENS USED", tokens]].map(([label, value]) => <div key={label} className="border-b border-line py-7 sm:px-5 sm:first:pl-0 xl:border-b-0 xl:border-r xl:last:border-r-0"><p className="eyebrow text-stone">{label}</p><p className="mt-5 text-4xl font-medium tracking-[-0.06em]">{Number(value).toLocaleString()}</p></div>)}
+      {[["CLIENT VISIBLE",clientVisibleResult.count||0],["INTERNAL / LOWER",internalResult.count||0],["OPEN CONFLICTS",conflictsResult.count||0],["AWAITING REVIEW", drafts.length], ["QUESTIONS", questionsResult.count || 0], ["LOW CONFIDENCE ANSWERS", lowConfidenceResult.count || 0], ["TOKENS USED", tokens]].map(([label, value]) => <div key={label} className="border-b border-line py-7 sm:px-5 sm:first:pl-0 xl:border-r xl:last:border-r-0"><p className="eyebrow text-stone">{label}</p><p className="mt-5 text-4xl font-medium tracking-[-0.06em]">{Number(value).toLocaleString()}</p></div>)}
     </div>
     <section className="mt-20">
       <h2 className="pb-5 text-2xl font-medium">Review queue</h2>

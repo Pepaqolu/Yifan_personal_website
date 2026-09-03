@@ -15,6 +15,8 @@ export type QueryPlanRecord = { id:string; intent:string; query:string; query_la
 export type EvidenceRecord = { id:string; opportunity_id:string|null; source_url:string; source_title:string; source_type:string; retrieved_at:string; published_at:string|null; last_verified_at:string|null; stale_after:string|null; language:string; extracted_fact:string; fact_type:string; confidence:string; confidence_score?:number|null; source_credibility_score?:number|null; verification_status:string; regulatory_relevance:string|null; commercial_relevance:string|null };
 export type RegulatoryMatchRecord = { id:string; authority:string; document_name:string; document_number:string|null; document_type:string; source_url:string|null; effective_date:string|null; status:string; applicability:string; applicability_reason:string; confidence:string; applicability_score?:number|null; evidence_confidence_score?:number|null; score_breakdown?:Record<string,number>; requirements_summary:string|null; questions_to_validate:string[]; evidence_ids:string[]; last_checked_at:string };
 export type FitAssessmentRecord = { opportunity_id:string; overall_assessment:string; opportunity_score?:number|null; evidence_confidence_score?:number|null; score_breakdown?:Record<string,number>; interpretation?:Record<string,unknown>; dimensions:Record<string,{score?:number;reason?:string;evidence_ids?:string[];confidence?:string}>; why_it_matters:string[]; concerns:string[]; unknowns:string[]; recommended_next_action:string|null; confidence:string };
+export type ConflictRecord = { id:string; conflict_type:string; competing_claims:Array<Record<string,unknown>>; stronger_evidence_summary:string|null; relevance_score:number|null; confidence_score:number|null; suggested_action:string|null; status:string };
+export type SearchFindingRecord = { id:string; product_id:string; title:string; url:string; domain:string; snippet:string|null; source_type:string; source_authority:string; search_quality_score:number|null; score_breakdown:Record<string,number>; ranking_reasons:string[]; published_at:string|null; status:string };
 
 export async function getProductProfiles(organizationId:string) {
   const supabase=await createClient();
@@ -30,9 +32,9 @@ export async function getProductIntelligence(organizationId:string,productId:str
   const supabase=await createClient();
   const [queries,evidence,matches,assessments]=await Promise.all([
     supabase.from("query_plans").select("id,intent,query,query_language,preferred_source_types,rationale,priority,status,created_at").eq("organization_id",organizationId).eq("product_id",productId).order("priority"),
-    supabase.from("evidence").select("id,opportunity_id,source_url,source_title,source_type,retrieved_at,published_at,last_verified_at,stale_after,language,extracted_fact,fact_type,confidence,verification_status,regulatory_relevance,commercial_relevance").eq("organization_id",organizationId).eq("product_id",productId).order("retrieved_at",{ascending:false}),
-    supabase.from("regulatory_matches").select("id,authority,document_name,document_number,document_type,source_url,effective_date,status,applicability,applicability_reason,confidence,requirements_summary,questions_to_validate,evidence_ids,last_checked_at").eq("organization_id",organizationId).eq("product_id",productId).order("last_checked_at",{ascending:false}),
-    supabase.from("opportunity_fit_assessments").select("opportunity_id,overall_assessment,dimensions,why_it_matters,concerns,unknowns,recommended_next_action,confidence").eq("organization_id",organizationId).eq("product_id",productId),
+    supabase.from("evidence").select("id,opportunity_id,source_url,source_title,source_type,retrieved_at,published_at,last_verified_at,stale_after,language,extracted_fact,fact_type,confidence,confidence_score,source_credibility_score,verification_status,regulatory_relevance,commercial_relevance").eq("organization_id",organizationId).eq("product_id",productId).order("retrieved_at",{ascending:false}),
+    supabase.from("regulatory_matches").select("id,authority,document_name,document_number,document_type,source_url,effective_date,status,applicability,applicability_reason,confidence,applicability_score,evidence_confidence_score,score_breakdown,requirements_summary,questions_to_validate,evidence_ids,last_checked_at").eq("organization_id",organizationId).eq("product_id",productId).order("last_checked_at",{ascending:false}),
+    supabase.from("opportunity_fit_assessments").select("opportunity_id,overall_assessment,opportunity_score,evidence_confidence_score,score_breakdown,interpretation,dimensions,why_it_matters,concerns,unknowns,recommended_next_action,confidence").eq("organization_id",organizationId).eq("product_id",productId),
   ]);
   const error=queries.error||evidence.error||matches.error||assessments.error; if(error) throw new Error(error.message);
   return {queries:(queries.data||[]) as QueryPlanRecord[],evidence:(evidence.data||[]) as EvidenceRecord[],matches:(matches.data||[]) as RegulatoryMatchRecord[],assessments:(assessments.data||[]) as FitAssessmentRecord[]};
@@ -40,10 +42,25 @@ export async function getProductIntelligence(organizationId:string,productId:str
 
 export async function getOpportunityIntelligence(organizationId:string,opportunityId:string){
   const supabase=await createClient();
-  const [evidence,assessment]=await Promise.all([
-    supabase.from("evidence").select("id,opportunity_id,source_url,source_title,source_type,retrieved_at,published_at,last_verified_at,stale_after,language,extracted_fact,fact_type,confidence,verification_status,regulatory_relevance,commercial_relevance").eq("organization_id",organizationId).eq("opportunity_id",opportunityId).order("retrieved_at",{ascending:false}),
-    supabase.from("opportunity_fit_assessments").select("opportunity_id,overall_assessment,dimensions,why_it_matters,concerns,unknowns,recommended_next_action,confidence").eq("organization_id",organizationId).eq("opportunity_id",opportunityId).maybeSingle(),
+  const [evidence,assessment,conflicts]=await Promise.all([
+    supabase.from("evidence").select("id,opportunity_id,source_url,source_title,source_type,retrieved_at,published_at,last_verified_at,stale_after,language,extracted_fact,fact_type,confidence,confidence_score,source_credibility_score,verification_status,regulatory_relevance,commercial_relevance").eq("organization_id",organizationId).eq("opportunity_id",opportunityId).order("retrieved_at",{ascending:false}),
+    supabase.from("opportunity_fit_assessments").select("opportunity_id,overall_assessment,opportunity_score,evidence_confidence_score,score_breakdown,interpretation,dimensions,why_it_matters,concerns,unknowns,recommended_next_action,confidence").eq("organization_id",organizationId).eq("opportunity_id",opportunityId).maybeSingle(),
+    supabase.from("conflict_records").select("id,conflict_type,competing_claims,stronger_evidence_summary,relevance_score,confidence_score,suggested_action,status").eq("organization_id",organizationId).eq("opportunity_id",opportunityId).order("created_at",{ascending:false}),
   ]);
-  const error=evidence.error||assessment.error; if(error) throw new Error(error.message);
-  return {evidence:(evidence.data||[]) as EvidenceRecord[],assessment:assessment.data as FitAssessmentRecord|null};
+  const error=evidence.error||assessment.error||conflicts.error; if(error) throw new Error(error.message);
+  return {evidence:(evidence.data||[]) as EvidenceRecord[],assessment:assessment.data as FitAssessmentRecord|null,conflicts:(conflicts.data||[]) as ConflictRecord[]};
+}
+
+export async function getOpportunityAssessments(organizationId:string){
+  const supabase=await createClient();
+  const {data,error}=await supabase.from("opportunity_fit_assessments").select("opportunity_id,overall_assessment,opportunity_score,evidence_confidence_score,score_breakdown,interpretation,dimensions,why_it_matters,concerns,unknowns,recommended_next_action,confidence").eq("organization_id",organizationId);
+  if(error) throw new Error(error.message);
+  return (data||[]) as FitAssessmentRecord[];
+}
+
+export async function getSearchFindings(organizationId:string,lower=false){
+  const supabase=await createClient();
+  let query=supabase.from("search_results").select("id,product_id,title,url,domain,snippet,source_type,source_authority,search_quality_score,score_breakdown,ranking_reasons,published_at,status").eq("organization_id",organizationId).order("search_quality_score",{ascending:false}).limit(10);
+  query=lower?query.lt("search_quality_score",60):query.eq("eligible_for_client",true).gte("search_quality_score",60);
+  const {data,error}=await query;if(error)throw new Error(error.message);return(data||[]) as SearchFindingRecord[];
 }

@@ -9,8 +9,8 @@ export function Status({ children }: { children: string }) {
   return <span className="inline-flex rounded-md border border-line bg-white/[0.025] px-2 py-1 font-mono text-[0.56rem] uppercase tracking-[0.09em] text-charcoal">{humanize(children)}</span>;
 }
 
-export function EmptyState({ title, description }: { title: string; description: string }) {
-  return <section className="rounded-2xl border border-line bg-elevated px-6 py-14 sm:px-8"><p className="eyebrow text-stone">EMPTY</p><p className="mt-5 text-2xl font-medium tracking-[-0.04em]">{title}</p><p className="mt-3 max-w-lg text-sm leading-6 text-stone">{description}</p></section>;
+export function EmptyState({ title, description, action }: { title: string; description: string; action?:ReactNode }) {
+  return <section className="bubble-card px-6 py-14 sm:px-8"><p className="eyebrow text-stone">READY WHEN YOU ARE</p><p className="mt-5 text-2xl font-medium tracking-[-0.04em]">{title}</p><p className="mt-3 max-w-lg text-sm leading-6 text-charcoal">{description}</p>{action?<div className="mt-7">{action}</div>:null}</section>;
 }
 
 export function ErrorState({ message = "Meridian could not load this workspace. Try again, or contact Yifan if the issue continues." }: { message?: string }) {

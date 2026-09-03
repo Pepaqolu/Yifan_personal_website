@@ -1,16 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --bg-primary: #070a0e;
-  --bg-secondary: #0b1118;
-  --bg-elevated: #101721;
-  --bg-soft: #151e29;
-  --text-primary: #f7fafc;
-  --text-secondary: #c4cfdb;
-  --text-muted: #8997a8;
+  --bg-primary: #071018;
+  --bg-secondary: #0d1823;
+  --bg-elevated: #132131;
+  --bg-soft: #18293b;
+  --text-primary: #f5f8fc;
+  --text-secondary: #a9b7c6;
+  --text-muted: #728394;
   --border-subtle: rgba(255, 255, 255, 0.1);
   --border-strong: rgba(255, 255, 255, 0.16);
-  --ice: #8dd4ff;
+  --ice: #69c7ff;
   --ice-bright: #bce9ff;
   --ice-deep: #70c5fb;
   --paper: var(--bg-primary);
@@ -22,6 +22,10 @@
   --dark-soft: var(--bg-secondary);
   --accent: var(--ice);
   --selection: rgba(158, 215, 255, 0.22);
+  --jade: #66d6b8;
+  --coral: #ff746c;
+  --amber: #e8bd68;
+  --signal-red: #f05d62;
   --radius-control: 0.625rem;
   --radius-panel: 1rem;
   --radius-large: 1.5rem;
@@ -45,6 +49,10 @@
   --color-soft: var(--bg-soft);
   --color-ice-bright: var(--ice-bright);
   --color-ice-deep: var(--ice-deep);
+  --color-jade: var(--jade);
+  --color-coral: var(--coral);
+  --color-amber: var(--amber);
+  --color-signal-red: var(--signal-red);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -93,6 +101,16 @@ select option { background: var(--bg-elevated); color: var(--text-primary); }
   border-radius: var(--radius-panel);
   background: var(--bg-elevated);
   box-shadow: var(--shadow-elevated);
+}
+.bubble-card {
+  border: 1px solid rgba(105, 199, 255, 0.2);
+  border-radius: clamp(1rem, 2vw, 1.5rem);
+  background: var(--bg-elevated);
+  box-shadow: 0 24px 70px rgba(0,0,0,.2), inset 0 1px rgba(255,255,255,.045), 0 0 40px rgba(105,199,255,.025);
+}
+.attention-card {
+  border-color: rgba(255,116,108,.42);
+  box-shadow: 0 24px 70px rgba(0,0,0,.2), inset 0 1px rgba(255,255,255,.045), 0 0 44px rgba(255,116,108,.07);
 }
 .workspace-shell input:not([type="checkbox"]):not([type="radio"]),
 .workspace-shell textarea,

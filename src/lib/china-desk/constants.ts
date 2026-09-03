@@ -1,16 +1,16 @@
 export const clientNavigation = [
-  ["Overview", "/meridian/app", ""],
-  ["Product Profile", "/meridian/app/product", "PRODUCT"],
-  ["Regulatory Map", "/meridian/app/regulatory", ""],
-  ["Opportunity Map", "/meridian/app/partners", "DISCOVER"],
-  ["Competitors", "/meridian/app/competitors", ""],
+  ["Overview", "/meridian/app", "OVERVIEW"],
+  ["Opportunities", "/meridian/app/partners", "DISCOVER"],
   ["Companies", "/meridian/app/partners?view=companies", ""],
+  ["Competitors", "/meridian/app/competitors", ""],
   ["Market Signals", "/meridian/app/market", ""],
+  ["Product Profile", "/meridian/app/product", "PRODUCT"],
+  ["Regulation", "/meridian/app/regulatory", ""],
   ["Pipeline", "/meridian/app/partners?view=pipeline", "WORK"],
   ["Research", "/meridian/app/research", ""],
   ["Requests", "/meridian/app/requests", ""],
   ["Knowledge", "/meridian/app/knowledge", "CONTEXT"],
-  ["Ask Meridian", "/meridian/app/ask", "COMMAND"],
+  ["Ask Meridian", "/meridian/app/ask", ""],
 ] as const;
 
 export const adminNavigation = [
