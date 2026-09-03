@@ -18,5 +18,8 @@ export type RankedSearchResult=ProviderSearchResult&{
   meridianScore:number;
   meridianRank:number;
   rankingReasons:string[];
+  scoreBreakdown:Record<string,number>;
+  eligibleForClient:boolean;
+  duplicateGroupKey:string;
+  independentSourceKey:string;
 };
-

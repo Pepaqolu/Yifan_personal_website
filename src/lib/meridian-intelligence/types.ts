@@ -1,10 +1,15 @@
 export type ConfirmationStatus = "AI_GENERATED" | "USER_CONFIRMED" | "ADMIN_CONFIRMED";
+export type IndustryOverlay = "UNIVERSAL" | "MEDTECH" | "CONSUMER" | "INDUSTRIAL" | "TECHNOLOGY";
 export type QueryIntent =
   | "FIND_REGULATION"
   | "FIND_REGULATORY_CLASSIFICATION"
   | "FIND_STANDARDS"
   | "DISCOVER_COMPETITORS"
   | "DISCOVER_DISTRIBUTORS"
+  | "DISCOVER_CUSTOMERS"
+  | "DISCOVER_PARTNERS"
+  | "DISCOVER_SUPPLIERS"
+  | "FIND_PRICING"
   | "FIND_TENDERS"
   | "FIND_COMPANY_ACTIVITY"
   | "FIND_MARKET_SIGNALS";
@@ -20,6 +25,8 @@ export type ProductProfileInput = {
   targetDepartment?: string;
   targetMarketSegment?: string;
   businessGoal?: string;
+  objectives?: string[];
+  additionalContext?: string;
   targetGeography?: string;
   chinaStatus?: string;
   keywordsEn?: string[];
@@ -31,7 +38,7 @@ export type ProductProfileInput = {
 };
 
 export type ProductUnderstanding = ProductProfileInput & {
-  industry: "MEDTECH";
+  industry: IndustryOverlay;
   subindustry: string;
   relatedCategories: string[];
   regulatoryQuestions: string[];
@@ -56,4 +63,3 @@ export type SourceClassification = {
   commercialSignalStrength: "HIGH" | "MEDIUM" | "LOW" | "NONE";
   status: "ACTIVE" | "LIMITED" | "PLANNED" | "MANUAL" | "DISABLED";
 };
-

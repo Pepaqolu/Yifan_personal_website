@@ -16,7 +16,8 @@ export const clientNavigation = [
 export const adminNavigation = [
   ["Overview", "/admin", ""],
   ["Intelligence", "/admin/intelligence", "CONTROL"],
-  ["Medtech Workflow", "/admin/medtech", ""],
+  ["Intelligence Search", "/admin/medtech", ""],
+  ["Learning", "/admin/learning", ""],
   ["Clients", "/admin/clients", ""],
   ["Requests", "/admin/requests", "WORK"],
   ["Research", "/admin/research", ""],

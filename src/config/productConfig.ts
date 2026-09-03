@@ -5,6 +5,10 @@ export const productConfig = {
   description:
     "Meridian finds the companies and market signals that matter to your business.",
   email: "yifanevanfu@gmail.com",
+  brand: {
+    logo: "/brand/meridian-logo.png",
+    meridianXUrl: null as string | null,
+  },
   launch: {
     enabled: true,
     date: "2026-09-05T01:00:00.000Z",

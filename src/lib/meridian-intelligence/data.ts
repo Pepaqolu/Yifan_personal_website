@@ -5,15 +5,16 @@ export type ProductProfile = {
   product_name: string; product_description: string | null; industry: string; subindustry: string | null;
   intended_use: string | null; clinical_use: string | null; target_customer: string | null;
   target_department: string | null; target_market_segment: string | null; business_goal: string | null;
+  objectives:string[]; additional_context:string|null; industry_overlay:string;
   target_geography: string; china_status: string | null; keywords_en: string[]; keywords_zh: string[];
   formal_terms_zh: string[]; procurement_terms_zh: string[]; distributor_terms_zh: string[];
   regulatory_terms_zh: string[]; related_categories: string[]; regulatory_notes: string | null;
   terminology_status: "AI_GENERATED" | "USER_CONFIRMED" | "ADMIN_CONFIRMED"; updated_at: string;
 };
 export type QueryPlanRecord = { id:string; intent:string; query:string; query_language:string; preferred_source_types:string[]; rationale:string; priority:number; status:string; created_at:string };
-export type EvidenceRecord = { id:string; opportunity_id:string|null; source_url:string; source_title:string; source_type:string; retrieved_at:string; published_at:string|null; last_verified_at:string|null; stale_after:string|null; language:string; extracted_fact:string; fact_type:string; confidence:string; verification_status:string; regulatory_relevance:string|null; commercial_relevance:string|null };
-export type RegulatoryMatchRecord = { id:string; authority:string; document_name:string; document_number:string|null; document_type:string; source_url:string|null; effective_date:string|null; status:string; applicability:string; applicability_reason:string; confidence:string; requirements_summary:string|null; questions_to_validate:string[]; evidence_ids:string[]; last_checked_at:string };
-export type FitAssessmentRecord = { opportunity_id:string; overall_assessment:string; dimensions:Record<string,{score?:number;reason?:string;evidence_ids?:string[];confidence?:string}>; why_it_matters:string[]; concerns:string[]; unknowns:string[]; recommended_next_action:string|null; confidence:string };
+export type EvidenceRecord = { id:string; opportunity_id:string|null; source_url:string; source_title:string; source_type:string; retrieved_at:string; published_at:string|null; last_verified_at:string|null; stale_after:string|null; language:string; extracted_fact:string; fact_type:string; confidence:string; confidence_score?:number|null; source_credibility_score?:number|null; verification_status:string; regulatory_relevance:string|null; commercial_relevance:string|null };
+export type RegulatoryMatchRecord = { id:string; authority:string; document_name:string; document_number:string|null; document_type:string; source_url:string|null; effective_date:string|null; status:string; applicability:string; applicability_reason:string; confidence:string; applicability_score?:number|null; evidence_confidence_score?:number|null; score_breakdown?:Record<string,number>; requirements_summary:string|null; questions_to_validate:string[]; evidence_ids:string[]; last_checked_at:string };
+export type FitAssessmentRecord = { opportunity_id:string; overall_assessment:string; opportunity_score?:number|null; evidence_confidence_score?:number|null; score_breakdown?:Record<string,number>; interpretation?:Record<string,unknown>; dimensions:Record<string,{score?:number;reason?:string;evidence_ids?:string[];confidence?:string}>; why_it_matters:string[]; concerns:string[]; unknowns:string[]; recommended_next_action:string|null; confidence:string };
 
 export async function getProductProfiles(organizationId:string) {
   const supabase=await createClient();

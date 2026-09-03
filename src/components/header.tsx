@@ -5,6 +5,7 @@ import { useState } from "react";
 import { productConfig } from "@/config/productConfig";
 import { AnalyticsLink } from "./analytics-link";
 import { AnnouncementTeaser } from "./announcement-teaser";
+import { MeridianBrand } from "./meridian-brand";
 
 export function Header() {
   const { scrollY } = useScroll();
@@ -17,9 +18,7 @@ export function Header() {
       <AnnouncementTeaser />
       <div className={`border-b transition-[background-color,border-color,backdrop-filter] duration-1000 ${scrolled ? "border-ink/[0.07] bg-paper/[0.72] backdrop-blur-2xl" : "border-transparent bg-transparent"}`}>
         <div className="page-shell flex h-16 items-center justify-between sm:h-[4.5rem]">
-          <a href="#top" className="flex items-center gap-2.5 text-[0.7rem] font-semibold tracking-[0.07em]" aria-label={`${productConfig.name}, back to top`}>
-            <span className="h-1.5 w-1.5 rounded-full bg-accent shadow-[0_0_12px_rgba(145,213,255,0.45)]" />{productConfig.shortName.toUpperCase()}
-          </a>
+          <a href="#top" className="text-[0.62rem]" aria-label={`${productConfig.name}, back to top`}><MeridianBrand compact /></a>
           <nav aria-label="Primary navigation">
             <ul className="flex items-center gap-4 sm:gap-7">
               {[{label:"Advantage",href:"#intelligence"},{label:"Product",href:"#product"},{label:"Demo",href:productConfig.routes.demo},{label:"Sign in",href:productConfig.routes.login}].map((item, index) => (

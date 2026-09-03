@@ -5,6 +5,7 @@ import { AuthForm } from "@/components/auth-form";
 import { signIn } from "./actions";
 import { getWorkspaceContext } from "@/lib/china-desk/auth";
 import { productConfig } from "@/config/productConfig";
+import { MeridianBrand } from "@/components/meridian-brand";
 
 export const metadata: Metadata = { title: `Sign in — ${productConfig.name}`, robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -20,7 +21,7 @@ export default async function LoginPage() {
     <main className="min-h-screen bg-paper text-ink">
       <div className="page-shell flex min-h-screen flex-col py-8 sm:py-12">
         <header>
-          <Link href="/" className="eyebrow text-stone">{productConfig.shortName}</Link>
+          <Link href="/" className="text-[0.62rem] text-stone"><MeridianBrand compact /></Link>
         </header>
         <section className="my-auto w-full max-w-md py-24">
           <p className="eyebrow text-accent">{productConfig.shortName.toUpperCase()}</p>

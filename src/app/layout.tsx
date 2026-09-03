@@ -13,6 +13,7 @@ export const metadata: Metadata = {
   description: productConfig.description,
   alternates: { canonical: "/" },
   applicationName: productConfig.name,
+  icons: { icon: productConfig.brand.logo, apple: productConfig.brand.logo },
   authors: [{ name: siteContent.name }],
   creator: siteContent.name,
   openGraph: {
@@ -22,13 +23,13 @@ export const metadata: Metadata = {
     description: productConfig.description,
     siteName: productConfig.name,
     url: "/",
-    images: [{ url: "/og.png", width: 1536, height: 1024, alt: `${productConfig.name} — ${productConfig.tagline}` }],
+    images: [{ url: productConfig.brand.logo, width: 1254, height: 1254, alt: `${productConfig.name} logo` }],
   },
   twitter: {
     card: "summary_large_image",
     title: `${productConfig.name} — ${productConfig.tagline}`,
     description: productConfig.description,
-    images: ["/og.png"],
+    images: [productConfig.brand.logo],
   },
   robots: { index: true, follow: true },
 };
