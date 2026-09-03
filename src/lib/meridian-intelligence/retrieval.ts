@@ -2,7 +2,7 @@ import "server-only";
 import { fetchPublicPage } from "@/lib/analysis/fetch-public-page";
 import type { SourceClassification } from "./types";
 
-const authoritative = ["nmpa.gov.cn", "samr.gov.cn", "gov.cn", "ccgp.gov.cn"];
+const authoritative = ["nmpa.gov.cn", "cmde.org.cn", "samr.gov.cn", "gov.cn", "ccgp.gov.cn"];
 const market = ["1688.com", "alibaba.com"];
 
 export function classifySource(value: string): SourceClassification {
@@ -20,4 +20,3 @@ export async function retrieveIntelligencePage(url: string) {
   const page = await fetchPublicPage(url);
   return { ...page, retrievedAt: new Date().toISOString(), classification: classifySource(page.url) };
 }
-
