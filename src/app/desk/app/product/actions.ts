@@ -8,18 +8,23 @@ import { ChinaQueryPlanner } from "@/lib/meridian-intelligence/query-planner";
 import { MeridianSearchRunner } from "@/lib/search/runner";
 import { searchProviderConfiguration } from "@/lib/search/provider";
 import { fetchPublicPage } from "@/lib/analysis/fetch-public-page";
+import { isResearchTier, researchTiers, type ResearchTier } from "@/config/researchTiers";
+import { providerCostConfig } from "@/config/researchCosts.server";
+import { getTokenBalance, markResearchRunning, refundResearch, reserveResearch, settleResearch } from "@/lib/tokens/service";
 
 const value=(form:FormData,key:string,max=4000)=>String(form.get(key)||"").trim().slice(0,max);
 const list=(form:FormData,key:string)=>value(form,key,3000).split(/[\n,，]/).map((item)=>item.trim()).filter(Boolean).slice(0,30);
 const values=(form:FormData,key:string)=>form.getAll(key).map((item)=>String(item).trim()).filter(Boolean).slice(0,20);
 
-export type ProductActionState={message:string;success?:boolean;profileId?:string;preparedSearches?:number;searchStarted?:boolean;stage?:string};
+export type ProductActionState={message:string;success?:boolean;profileId?:string;preparedSearches?:number;searchStarted?:boolean;stage?:string;tokensUsed?:number;tokensReturned?:number;balance?:number;researchJobId?:string};
 export type RetryActionState={message:string;success?:boolean};
 export type UnderstandingState={message:string;success?:boolean;productName?:string;summary?:string;audiences?:string[];industry?:string;objectives?:string[];mode?:"WEBSITE_RETRIEVAL"|"USER_INPUT_FALLBACK"};
 async function persistProductProfile(form:FormData):Promise<ProductActionState> {
   const context=await requireWorkspace();
   if(!context.organization) throw new Error("A client workspace is required.");
   const profileId=value(form,"id",100);
+  const tierValue=value(form,"research_tier",20).toUpperCase();if(!isResearchTier(tierValue))throw new Error("Choose a valid research depth.");const tier=tierValue as ResearchTier;
+  const requestKey=value(form,"research_request_id",100);if(!requestKey)throw new Error("Research request could not be identified. Refresh and try again.");
   const objectives=values(form,"objectives");
   const service=new ProductIntelligenceService();
   const understood=service.understand({
@@ -57,17 +62,32 @@ async function persistProductProfile(form:FormData):Promise<ProductActionState> 
   } else {
     const {data,error}=await supabase.from("product_profiles").insert(payload).select("id").single(); if(error||!data) throw new Error(error?.message||"Product profile could not be saved."); id=data.id;
   }
-  const {data:progress}=await supabase.from("analysis_progress").insert({organization_id:context.organization.id,product_id:id,stage:"QUERY_PLANNING",status:"RUNNING",completed_stages:["PRODUCT_PROFILE"],created_by:context.user.id}).select("id").single();
-  const plans=new ChinaQueryPlanner().plan(understood);
+  const config=searchProviderConfiguration();
+  if(!config.configured)throw new Error("Profile saved, but research cannot start until the search provider is configured. No Tokens were reserved.");
+  if(providerCostConfig.braveSearch.costPerRequestUsd===null)throw new Error("Profile saved, but research cost controls are not configured. No Tokens were reserved.");
+  let reservation:Awaited<ReturnType<typeof reserveResearch>>|null=null;let progress:{id:string}|null=null;
+  try{reservation=await reserveResearch({productId:id,tier,idempotencyKey:requestKey});}catch(error){if(error instanceof Error&&error.message==="INSUFFICIENT_TOKENS"){const balance=await getTokenBalance();throw new Error(`MORE TOKENS REQUIRED · ${researchTiers[tier].name} requires ${researchTiers[tier].tokens} Tokens. Your available balance is ${balance?.available_tokens??0} Tokens.`);}throw error;}
+  if(reservation.idempotent){const balance=await getTokenBalance();return{message:reservation.status==="SETTLED"?"This research request was already completed.":reservation.status==="REFUNDED"?"This research attempt was already refunded. Try again to begin a new request.":"This research request is already in progress.",success:reservation.status==="SETTLED",profileId:id,tokensUsed:reservation.status==="SETTLED"?reservation.tokens:0,balance:balance?.available_tokens,researchJobId:reservation.research_job_id};}
+  try{
+  await markResearchRunning(reservation.research_job_id);
+  const progressResult=await supabase.from("analysis_progress").insert({organization_id:context.organization.id,product_id:id,research_job_id:reservation.research_job_id,stage:"QUERY_PLANNING",status:"RUNNING",completed_stages:["PRODUCT_PROFILE"],created_by:context.user.id}).select("id").single();progress=progressResult.data;
+  const plans=new ChinaQueryPlanner().plan(understood);const selectedPlans=plans.slice(0,researchTiers[tier].maxSearchPaths);
   let insertedPlans:{id:string;priority:number}[]=[];
-  if(plans.length){
-    const {data,error:planError}=await supabase.from("query_plans").insert(plans.map((plan)=>({organization_id:context.organization!.id,product_id:id,intent:plan.intent,query:plan.query,query_language:plan.queryLanguage,preferred_source_types:plan.preferredSourceTypes,geography:plan.geography,product_terms:plan.productTerms,rationale:plan.rationale,priority:plan.priority,created_by:context.user.id}))).select("id,priority");
+  if(selectedPlans.length){
+    const {data,error:planError}=await supabase.from("query_plans").insert(selectedPlans.map((plan)=>({organization_id:context.organization!.id,product_id:id,intent:plan.intent,query:plan.query,query_language:plan.queryLanguage,preferred_source_types:plan.preferredSourceTypes,geography:plan.geography,product_terms:plan.productTerms,rationale:plan.rationale,priority:plan.priority,created_by:context.user.id}))).select("id,priority");
     if(planError){if(progress)await supabase.from("analysis_progress").update({stage:"FAILED",status:"FAILED",error_message:planError.message}).eq("id",progress.id);throw new Error(planError.message);}
     insertedPlans=(data||[]) as {id:string;priority:number}[];
-    await supabase.from("retrieval_logs").insert(plans.map((plan)=>({organization_id:context.organization!.id,product_id:id,event_type:"QUERY_GENERATED",message:plan.rationale,metadata:{intent:plan.intent,query:plan.query}})));
+    await supabase.from("retrieval_logs").insert(selectedPlans.map((plan)=>({organization_id:context.organization!.id,product_id:id,event_type:"QUERY_GENERATED",message:plan.rationale,metadata:{intent:plan.intent,query:plan.query,research_job_id:reservation!.research_job_id,research_tier:tier}})));
   }
-    if(progress)await supabase.from("analysis_progress").update({stage:"QUERY_PLANNING",status:"COMPLETE",completed_stages:["PRODUCT_PROFILE","QUERY_PLANNING"]}).eq("id",progress.id);
-    const config=searchProviderConfiguration();if(config.configured&&insertedPlans.length){const runner=new MeridianSearchRunner();await Promise.allSettled(insertedPlans.sort((a,b)=>a.priority-b.priority).slice(0,3).map((plan)=>runner.run({organizationId:context.organization!.id,productId:id,queryPlanId:plan.id})));}
+  if(progress)await supabase.from("analysis_progress").update({stage:"QUERY_PLANNING",status:"COMPLETE",completed_stages:["PRODUCT_PROFILE","QUERY_PLANNING"]}).eq("id",progress.id);
+  const runner=new MeridianSearchRunner();const completed:Awaited<ReturnType<MeridianSearchRunner["run"]>>[]=[];
+  for(const [index,plan] of insertedPlans.sort((a,b)=>a.priority-b.priority).entries()){
+    try{completed.push(await runner.run({organizationId:context.organization!.id,productId:id,queryPlanId:plan.id,researchJobId:reservation.research_job_id,costImportance:index===0?"ESSENTIAL":"OPTIONAL"}));}
+    catch(error){if(error instanceof Error&&error.message.includes("CIRCUIT BREAKER"))break;}
+  }
+  if(!completed.length)throw new Error("Meridian could not complete a usable research result.");
+  const results=completed.flatMap((item)=>item.results);const qualified=results.filter((item)=>item.eligibleForClient);const independent=new Set(qualified.map((item)=>item.independentSourceKey)).size;
+  await settleResearch(reservation.research_job_id,{search_path_count:completed.length,result_count:results.length,qualified_finding_count:qualified.length,independent_source_count:independent});
   await supabase.rpc("save_client_onboarding",{answers:[
     {title:"Product overview",category:"Products",content:understood.productDescription||understood.productName},
     {title:"China objectives",category:"Commercial Strategy",content:objectives.join(", ")},
@@ -75,13 +95,14 @@ async function persistProductProfile(form:FormData):Promise<ProductActionState> 
     {title:"Additional context",category:"Other Context",content:understood.additionalContext||""},
   ],skip_onboarding:false});
   await supabase.from("activity").insert({organization_id:context.organization.id,actor_id:context.user.id,action:`Product profile saved: ${understood.productName}`,entity_type:"product",entity_id:id});
-  revalidatePath("/meridian/app/product"); revalidatePath("/meridian/app/regulatory");
-  return {message:searchProviderConfiguration().configured?"Profile saved. Meridian searched the highest-priority China paths.":"Profile saved. Your China search strategy is ready.",success:true,profileId:id,preparedSearches:plans.length,searchStarted:searchProviderConfiguration().configured,stage:searchProviderConfiguration().configured?"EVIDENCE_REVIEW":"QUERY_PLANNING"};
+  revalidatePath("/meridian/app/product"); revalidatePath("/meridian/app/regulatory");revalidatePath("/meridian/app/tokens");
+  return {message:`RESEARCH COMPLETE · ${researchTiers[tier].tokens} Tokens used.`,success:true,profileId:id,preparedSearches:selectedPlans.length,searchStarted:true,stage:"EVIDENCE_REVIEW",tokensUsed:researchTiers[tier].tokens,balance:reservation.available_after,researchJobId:reservation.research_job_id};
+  }catch(error){if(reservation){await refundResearch(reservation.research_job_id,error instanceof Error?error.message:"Technical research failure").catch(()=>undefined);if(progress)await supabase.from("analysis_progress").update({stage:"FAILED",status:"FAILED",error_message:error instanceof Error?error.message:"Technical research failure"}).eq("id",progress.id);}throw new Error(`${error instanceof Error?error.message:"Research could not complete."} ${reservation?`${reservation.tokens} Tokens were returned to your balance.`:""}`.trim());}
 }
 
 export async function saveProductProfile(_:ProductActionState,form:FormData):Promise<ProductActionState>{try{return await persistProductProfile(form);}catch(error){return{message:error instanceof Error?error.message:"Meridian could not save this profile.",stage:"FAILED"};}}
 
-export async function retryProductResearch(_:RetryActionState,form:FormData):Promise<RetryActionState>{try{const context=await requireWorkspace();if(!context.organization)throw new Error("A client workspace is required.");if(!searchProviderConfiguration().configured)throw new Error("The search provider is not configured.");const id=value(form,"id",100);const supabase=await createClient();const {data,error}=await supabase.from("query_plans").select("id,priority").eq("organization_id",context.organization.id).eq("product_id",id).in("status",["FAILED","PLANNED"]).order("priority").limit(3);if(error)throw new Error(error.message);if(!data?.length)return{message:"There are no paused searches to retry.",success:true};const runner=new MeridianSearchRunner();const results=await Promise.allSettled(data.map((plan)=>runner.run({organizationId:context.organization!.id,productId:id,queryPlanId:plan.id})));const completed=results.filter((item)=>item.status==="fulfilled").length;revalidatePath(`/meridian/app/product?id=${id}`);return completed?{message:`Research resumed ✓ ${completed} search${completed===1?"":"es"} completed.`,success:true}:{message:"Meridian still could not reach the search sources. Your completed work remains saved."};}catch(error){return{message:error instanceof Error?error.message:"Research could not be retried."};}}
+export async function retryProductResearch(_:RetryActionState,form:FormData):Promise<RetryActionState>{let reservation:Awaited<ReturnType<typeof reserveResearch>>|null=null;try{const context=await requireWorkspace();if(!context.organization)throw new Error("A client workspace is required.");if(!searchProviderConfiguration().configured||providerCostConfig.braveSearch.costPerRequestUsd===null)throw new Error("Research providers or cost controls are not configured.");const id=value(form,"id",100),requestKey=value(form,"research_request_id",100);const supabase=await createClient();const {data:last}=await supabase.from("research_jobs").select("research_tier").eq("organization_id",context.organization.id).eq("product_id",id).order("created_at",{ascending:false}).limit(1).maybeSingle();const tierValue=last?.research_tier||"";const tier:ResearchTier=isResearchTier(tierValue)?tierValue:"STANDARD";reservation=await reserveResearch({productId:id,tier,idempotencyKey:requestKey});if(reservation.idempotent)return{message:reservation.status==="SETTLED"?"This retry was already completed.":reservation.status==="REFUNDED"?"That retry was already refunded. Try again to start a new request.":"This retry is already in progress.",success:reservation.status==="SETTLED"};await markResearchRunning(reservation.research_job_id);const {data,error}=await supabase.from("query_plans").select("id,priority").eq("organization_id",context.organization.id).eq("product_id",id).in("status",["FAILED","PLANNED"]).order("priority").limit(researchTiers[tier].maxSearchPaths);if(error)throw new Error(error.message);if(!data?.length)throw new Error("There are no paused searches to retry.");const runner=new MeridianSearchRunner();const completed:Awaited<ReturnType<MeridianSearchRunner["run"]>>[]=[];for(const [index,plan] of data.entries()){try{completed.push(await runner.run({organizationId:context.organization!.id,productId:id,queryPlanId:plan.id,researchJobId:reservation.research_job_id,costImportance:index===0?"ESSENTIAL":"OPTIONAL"}));}catch(runError){if(runError instanceof Error&&runError.message.includes("CIRCUIT BREAKER"))break;}}if(!completed.length)throw new Error("Meridian still could not reach the required sources.");const results=completed.flatMap((item)=>item.results);await settleResearch(reservation.research_job_id,{search_path_count:completed.length,result_count:results.length,qualified_finding_count:results.filter((item)=>item.eligibleForClient).length,independent_source_count:new Set(results.filter((item)=>item.eligibleForClient).map((item)=>item.independentSourceKey)).size});revalidatePath(`/meridian/app/product?id=${id}`);revalidatePath("/meridian/app/tokens");return{message:`Research resumed ✓ ${reservation.tokens} Tokens used.`,success:true};}catch(error){if(reservation)await refundResearch(reservation.research_job_id,error instanceof Error?error.message:"Technical failure").catch(()=>undefined);return{message:`${error instanceof Error?error.message:"Research could not be retried."}${reservation?` ${reservation.tokens} Tokens were returned.`:""}`};}}
 
 export async function prepareProductUnderstanding(_:UnderstandingState,form:FormData):Promise<UnderstandingState>{
   const url=value(form,"company_url",500),description=value(form,"product_name",1000),objectives=values(form,"objectives"),target=value(form,"target_customer",1000);

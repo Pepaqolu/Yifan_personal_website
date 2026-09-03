@@ -7,20 +7,22 @@ import { productConfig } from "@/config/productConfig";
 import { ReturnVisitTracker } from "@/components/return-visit-tracker";
 import { currentTimestamp } from "@/lib/server-time";
 import { MeridianBrand } from "@/components/meridian-brand";
+import { getTokenBalance } from "@/lib/tokens/service";
 
-export function WorkspaceShell({ context, navigation, label, children }: { context: WorkspaceContext; navigation: readonly (readonly [string, string, string?])[]; label: string; children: ReactNode }) {
+export async function WorkspaceShell({ context, navigation, label, children }: { context: WorkspaceContext; navigation: readonly (readonly [string, string, string?])[]; label: string; children: ReactNode }) {
   const displayName = [context.profile.first_name, context.profile.last_name].filter(Boolean).join(" ") || context.user.email || "Member";
   const trialEnds = context.organization?.trial_ends_at ? new Date(context.organization.trial_ends_at) : null;
   const now = currentTimestamp();
   const trialDays = trialEnds ? Math.max(0, Math.ceil((trialEnds.getTime() - now) / 86400000)) : null;
   const trialExpired = Boolean(trialEnds && trialEnds.getTime() <= now);
+  const balance=context.organization?await getTokenBalance(context.organization.id):null;
   return (
     <div className="workspace-shell min-h-screen bg-paper text-ink">
       <ReturnVisitTracker />
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 border-r border-line bg-dark-soft px-6 py-7 lg:flex lg:flex-col">
         <div className="border-b border-line pb-6"><Link href="/" className="text-[0.62rem]"><MeridianBrand compact /></Link><p className="mt-3 font-mono text-[0.56rem] uppercase tracking-[0.12em] text-stone">{label}</p></div>
         <div className="mt-5 overflow-y-auto"><WorkspaceNav items={navigation} /></div>
-        <div className="mt-auto border-t border-line pt-5"><div className="flex items-start gap-3"><span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-accent"/><div><p className="text-sm font-medium">{displayName}</p><p className="mt-1 text-xs text-stone">{context.organization?.name ?? "Administration"}</p><p className="mt-3 font-mono text-[0.55rem] uppercase tracking-[0.1em] text-stone">China ↔ World</p></div></div><form action={signOut}><button className="mt-5 text-xs text-stone transition-colors hover:text-ink">Sign out →</button></form></div>
+        <div className="mt-auto border-t border-line pt-5">{balance?<Link href="/meridian/app/tokens" className="mb-5 flex items-baseline justify-between border-b border-line pb-4 text-xs text-stone hover:text-accent"><span>Token balance</span><strong className="font-mono font-normal">{balance.available_tokens}</strong></Link>:null}<div className="flex items-start gap-3"><span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-accent"/><div><p className="text-sm font-medium">{displayName}</p><p className="mt-1 text-xs text-stone">{context.organization?.name ?? "Administration"}</p><p className="mt-3 font-mono text-[0.55rem] uppercase tracking-[0.1em] text-stone">China ↔ World</p></div></div><form action={signOut}><button className="mt-5 text-xs text-stone transition-colors hover:text-ink">Sign out →</button></form></div>
       </aside>
       <header className="sticky top-0 z-20 border-b border-line bg-paper/[0.78] px-5 py-4 backdrop-blur-2xl backdrop-saturate-150 lg:hidden">
         <div className="flex items-center justify-between"><Link href="/" className="text-[0.58rem]"><MeridianBrand compact /></Link><details className="group relative"><summary className="list-none rounded-lg border border-line px-3 py-1.5 font-mono text-[0.58rem] uppercase tracking-[0.1em] text-charcoal">Menu</summary><div className="absolute right-0 top-11 w-[min(19rem,calc(100vw-2.5rem))] rounded-2xl border border-line bg-elevated p-4 shadow-[var(--shadow-elevated)]"><WorkspaceNav items={navigation}/><div className="mt-5 border-t border-line pt-4"><p className="text-xs text-stone">{displayName}</p><form action={signOut}><button className="mt-3 text-xs text-charcoal">Sign out →</button></form></div></div></details></div>

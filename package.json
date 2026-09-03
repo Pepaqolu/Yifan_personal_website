@@ -11,6 +11,8 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
+    "test:tokens": "node --experimental-strip-types --test tests/token-economics.test.mjs",
+    "test:benchmarks": "node --experimental-strip-types --experimental-specifier-resolution=node scripts/run-intelligence-benchmarks.ts",
     "seed:users": "node scripts/seed-users.mjs"
   },
   "dependencies": {

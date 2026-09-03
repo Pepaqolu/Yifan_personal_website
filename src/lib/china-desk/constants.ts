@@ -11,6 +11,7 @@ export const clientNavigation = [
   ["Requests", "/meridian/app/requests", ""],
   ["Knowledge", "/meridian/app/knowledge", "CONTEXT"],
   ["Ask Meridian", "/meridian/app/ask", ""],
+  ["Tokens", "/meridian/app/tokens", "ACCOUNT"],
 ] as const;
 
 export const adminNavigation = [
@@ -24,6 +25,7 @@ export const adminNavigation = [
   ["Partners", "/admin/partners", "INTELLIGENCE"],
   ["Competitors", "/admin/competitors", ""],
   ["Market", "/admin/market", ""],
+  ["Economics", "/admin/economics", "OPERATIONS"],
 ] as const;
 
 export const partnerStatuses = ["IDENTIFIED", "QUALIFIED", "CONTACTED", "REPLIED", "INTERESTED", "NEGOTIATING", "ACTIVE", "NOT_A_FIT"] as const;
