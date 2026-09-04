@@ -11,6 +11,7 @@ import { fetchPublicPage } from "@/lib/analysis/fetch-public-page";
 import { isResearchTier, researchTiers, type ResearchTier } from "@/config/researchTiers";
 import { providerCostConfig } from "@/config/researchCosts.server";
 import { getTokenBalance, markResearchRunning, refundResearch, reserveResearch, settleResearch } from "@/lib/tokens/service";
+import { attemptAutoRefill } from "@/lib/payments/auto-refill";
 
 const value=(form:FormData,key:string,max=4000)=>String(form.get(key)||"").trim().slice(0,max);
 const list=(form:FormData,key:string)=>value(form,key,3000).split(/[\n,，]/).map((item)=>item.trim()).filter(Boolean).slice(0,30);
@@ -24,6 +25,7 @@ async function persistProductProfile(form:FormData):Promise<ProductActionState> 
   if(!context.organization) throw new Error("A client workspace is required.");
   const profileId=value(form,"id",100);
   const tierValue=value(form,"research_tier",20).toUpperCase();if(!isResearchTier(tierValue))throw new Error("Choose a valid research depth.");const tier=tierValue as ResearchTier;
+  const intensiveAutoRefillConfirmed=form.get("intensive_auto_refill_confirmed")==="true";
   const requestKey=value(form,"research_request_id",100);if(!requestKey)throw new Error("Research request could not be identified. Refresh and try again.");
   const objectives=values(form,"objectives");
   const service=new ProductIntelligenceService();
@@ -66,7 +68,7 @@ async function persistProductProfile(form:FormData):Promise<ProductActionState> 
   if(!config.configured)throw new Error("Profile saved, but research cannot start until the search provider is configured. No Tokens were reserved.");
   if(providerCostConfig.braveSearch.costPerRequestUsd===null)throw new Error("Profile saved, but research cost controls are not configured. No Tokens were reserved.");
   let reservation:Awaited<ReturnType<typeof reserveResearch>>|null=null;let progress:{id:string}|null=null;
-  try{reservation=await reserveResearch({productId:id,tier,idempotencyKey:requestKey});}catch(error){if(error instanceof Error&&error.message==="INSUFFICIENT_TOKENS"){const balance=await getTokenBalance();throw new Error(`MORE TOKENS REQUIRED · ${researchTiers[tier].name} requires ${researchTiers[tier].tokens} Tokens. Your available balance is ${balance?.available_tokens??0} Tokens.`);}throw error;}
+  try{reservation=await reserveResearch({productId:id,tier,idempotencyKey:requestKey});}catch(error){if(error instanceof Error&&error.message==="INSUFFICIENT_TOKENS"){if(tier==="INTENSIVE"&&!intensiveAutoRefillConfirmed)throw new Error("CONFIRM AUTO-REFILL · Intensive Research requires explicit confirmation before an automatic Token purchase.");const balance=await getTokenBalance();const refill=await attemptAutoRefill(context.organization.id,"BEFORE_RESEARCH",researchTiers[tier].tokens);if(refill.status==="PENDING"||refill.status==="ALREADY_PENDING")throw new Error("AUTO-REFILL PAYMENT PROCESSING · Research will not begin until Paddle confirms payment and Tokens are added. Try again after confirmation.");if(refill.status==="CAP_REACHED")throw new Error("AUTO-REFILL LIMIT REACHED · Add Tokens manually or increase your monthly limit.");throw new Error(`MORE TOKENS REQUIRED · ${researchTiers[tier].name} requires ${researchTiers[tier].tokens} Tokens. Your available balance is ${balance?.available_tokens??0} Tokens.`);}throw error;}
   if(reservation.idempotent){const balance=await getTokenBalance();return{message:reservation.status==="SETTLED"?"This research request was already completed.":reservation.status==="REFUNDED"?"This research attempt was already refunded. Try again to begin a new request.":"This research request is already in progress.",success:reservation.status==="SETTLED",profileId:id,tokensUsed:reservation.status==="SETTLED"?reservation.tokens:0,balance:balance?.available_tokens,researchJobId:reservation.research_job_id};}
   try{
   await markResearchRunning(reservation.research_job_id);
@@ -88,6 +90,7 @@ async function persistProductProfile(form:FormData):Promise<ProductActionState> 
   if(!completed.length)throw new Error("Meridian could not complete a usable research result.");
   const results=completed.flatMap((item)=>item.results);const qualified=results.filter((item)=>item.eligibleForClient);const independent=new Set(qualified.map((item)=>item.independentSourceKey)).size;
   await settleResearch(reservation.research_job_id,{search_path_count:completed.length,result_count:results.length,qualified_finding_count:qualified.length,independent_source_count:independent});
+  await attemptAutoRefill(context.organization.id,"AFTER_RESEARCH").catch(()=>undefined);
   await supabase.rpc("save_client_onboarding",{answers:[
     {title:"Product overview",category:"Products",content:understood.productDescription||understood.productName},
     {title:"China objectives",category:"Commercial Strategy",content:objectives.join(", ")},

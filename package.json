@@ -12,6 +12,8 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test:tokens": "node --experimental-strip-types --test tests/token-economics.test.mjs",
+    "test:payments": "node --experimental-strip-types --test tests/payment-economics.test.mjs",
+    "validate:paddle-catalog": "node scripts/validate-paddle-catalog.mjs",
     "test:benchmarks": "node --experimental-strip-types --experimental-specifier-resolution=node scripts/run-intelligence-benchmarks.ts",
     "seed:users": "node scripts/seed-users.mjs"
   },

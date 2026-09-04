@@ -1,0 +1,9 @@
+import "server-only";
+import { paymentConfiguration } from "./config";
+type Method="GET"|"POST";
+async function request<T>(path:string,method:Method="GET",body?:unknown):Promise<T>{const config=paymentConfiguration();if(!config.configured)throw new Error("Payments are not configured.");const response=await fetch(`${config.apiBase}${path}`,{method,headers:{Authorization:`Bearer ${config.apiKey}`,"Content-Type":"application/json","Paddle-Version":"1"},body:body?JSON.stringify(body):undefined,cache:"no-store"});const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(typeof result?.error?.detail==="string"?result.error.detail:"Paddle request failed.");return result.data as T;}
+export async function createPaddleCustomer(email:string,name?:string){return request<{id:string}>("/customers","POST",{email,name:name||undefined,custom_data:{source:"meridian"}});}
+export async function customerAuthToken(customerId:string){return request<{customer_auth_token:string;expires_at:string}>(`/customers/${customerId}/auth-token`,"POST",{});}
+export async function customerPortal(customerId:string,subscriptionId?:string|null){return request<{urls:{general:{overview:string};subscriptions?:Array<{update_subscription_payment_method?:string}>}}>(`/customers/${customerId}/portal-sessions`,"POST",subscriptionId?{subscription_ids:[subscriptionId]}:{});}
+export async function chargeSubscription(subscriptionId:string,priceId:string,customData:Record<string,string>){return request<{id?:string;transaction_id?:string}>(`/subscriptions/${subscriptionId}/charge`,"POST",{items:[{price_id:priceId,quantity:1}],effective_from:"immediately",on_payment_failure:"prevent_change",custom_data:customData});}
+export async function getPaddleTransaction(id:string){return request<Record<string,unknown>>(`/transactions/${id}`);}
