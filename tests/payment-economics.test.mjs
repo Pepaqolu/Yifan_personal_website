@@ -13,6 +13,7 @@ const refill = read("src/lib/payments/auto-refill.ts");
 const migration = read("supabase/migrations/202609040009_meridian_payments.sql");
 const controls = read("src/components/china-desk-app/payment-controls.tsx");
 const actions = read("src/app/desk/app/product/actions.ts");
+const paddle = read("src/lib/payments/paddle.ts");
 const validator = read("scripts/validate-paddle-catalog.mjs");
 const env = read(".env.example");
 const valid = (body="{}", ts=Math.floor(Date.now()/1000), secret="secret") => ({ header:`ts=${ts};h1=${createHmac("sha256",secret).update(`${ts}:${body}`).digest("hex")}`, ts, body, secret });
@@ -45,7 +46,7 @@ const cases = [
   ["25 paid transaction does not fulfill", () => assert.doesNotMatch(webhook,/transaction\.paid.*grant_paddle_purchase/s)],
   ["26 unknown price grants zero Tokens", () => assert.match(webhook,/Unknown catalog items never grant Tokens/)],
   ["27 server maps trusted price to pack", () => assert.match(webhook,/packForPrice/)],
-  ["28 customer custom data does not set token amount", () => assert.doesNotMatch(webhook,/data\.custom_data\?\.target_tokens/)],
+  ["28 Paddle request bodies match authoritative APIs", () => {assert.match(paddle,/auth-token`,"POST"\);/);assert.doesNotMatch(paddle,/charge`[^\n]+custom_data/)}],
   ["29 duplicate purchase grant has advisory lock", () => assert.match(migration,/pg_advisory_xact_lock/)],
   ["30 duplicate webhook has unique event key", () => assert.match(migration,/unique\(environment,event_id\)/)],
   ["31 failed webhook can be reclaimed", () => assert.match(webhook,/processing_status !== "FAILED"/)],

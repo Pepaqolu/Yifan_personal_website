@@ -71,8 +71,8 @@ async function processEvent(event: PaddleEvent, environment: string) {
     if (!packKey) return; // Unknown catalog items never grant Tokens.
     const tokens = Number(packKey);
     const customAttemptId = String(data.custom_data?.meridian_auto_refill_attempt_id || "");
-    let attemptQuery = admin.from("auto_refill_attempts").select("id,refill_tokens").eq("organization_id", account.organization_id);
-    attemptQuery = customAttemptId ? attemptQuery.eq("id", customAttemptId) : attemptQuery.eq("paddle_transaction_id", data.id);
+    let attemptQuery = admin.from("auto_refill_attempts").select("id,refill_tokens").eq("organization_id", account.organization_id).eq("refill_tokens",tokens).in("status",["CREATED","PENDING"]);
+    attemptQuery = customAttemptId ? attemptQuery.eq("id", customAttemptId) : attemptQuery.order("created_at",{ascending:false}).limit(1);
     const { data: attempt } = await attemptQuery.maybeSingle();
     const verifiedAttempt = attempt && Number(attempt.refill_tokens) === tokens ? attempt : null;
     const purchaseType = verifiedAttempt ? "AUTO_REFILL" : "TOKEN_PURCHASE";

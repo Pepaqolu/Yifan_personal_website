@@ -43,12 +43,10 @@ export async function attemptAutoRefill(organizationId: string, reason: AutoRefi
     throw attempt.error;
   }
   try {
-    const charge = await chargeSubscription(account.paddle_subscription_id, config.packIds[settings.refill_tokens]!, { meridian_organization_id: organizationId, meridian_purchase_type: "AUTO_REFILL", meridian_auto_refill_attempt_id: attempt.data.id, meridian_environment: config.environment });
-    const transactionId = charge.transaction_id || charge.id;
-    if (!transactionId) throw new Error("Paddle did not return a transaction reference.");
-    await admin.from("auto_refill_attempts").update({ status: "PENDING", paddle_transaction_id: transactionId }).eq("id", attempt.data.id);
+    await chargeSubscription(account.paddle_subscription_id, config.packIds[settings.refill_tokens]!);
+    await admin.from("auto_refill_attempts").update({ status: "PENDING" }).eq("id", attempt.data.id);
     await admin.from("auto_refill_settings").update({ last_attempt_at: new Date().toISOString() }).eq("organization_id", organizationId);
-    return { status: "PENDING" as const, transactionId };
+    return { status: "PENDING" as const };
   } catch (error) {
     await admin.from("auto_refill_attempts").update({ status: "FAILED", failure: error instanceof Error ? error.message : "Payment failed", completed_at: new Date().toISOString() }).eq("id", attempt.data.id);
     await admin.from("auto_refill_settings").update({ status: "PAYMENT_ATTENTION_REQUIRED", last_attempt_at: new Date().toISOString() }).eq("organization_id", organizationId);
